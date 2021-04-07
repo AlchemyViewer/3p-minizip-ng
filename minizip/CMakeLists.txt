@@ -197,12 +197,20 @@ endif()
 
 if(MZ_ZLIB)
     # Check if zlib is present
-    if(NOT MZ_FORCE_FETCH_LIBS)
+    if(NOT MZ_ZIB_OVERRIDE AND NOT MZ_FORCE_FETCH_LIBS)
         find_package(ZLIB QUIET)
         set(ZLIB_VERSION ${ZLIB_VERSION_STRING})
     endif()
 
-    if(ZLIB_FOUND AND NOT MZ_FORCE_FETCH_LIBS)
+    if(MZ_ZIB_OVERRIDE AND NOT MZ_FORCE_FETCH_LIBS)
+        set(ZLIB_FOUND ON)
+
+        list(APPEND MINIZIP_INC ${ZLIB_INCLUDE_DIRS})
+        list(APPEND MINIZIP_LIB ${ZLIB_LIBRARIES})
+        list(APPEND MINIZIP_LBD ${ZLIB_LIBRARY_DIRS})
+
+        set(PC_PRIVATE_LIBS " -lz")
+    elseif(ZLIB_FOUND AND NOT MZ_FORCE_FETCH_LIBS)
         message(STATUS "Using ZLIB ${ZLIB_VERSION}")
 
         list(APPEND MINIZIP_INC ${ZLIB_INCLUDE_DIRS})

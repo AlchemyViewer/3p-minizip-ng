@@ -27,8 +27,8 @@ source_environment_tempfile="$stage/source_environment.sh"
 "$autobuild" source_environment > "$source_environment_tempfile"
 . "$source_environment_tempfile"
 
-VERSION_HEADER_FILE="$ZLIB_SOURCE_DIR/zlib.h"
-version=$(sed -n -E 's/#define ZLIBNG_VERSION "([0-9.]+)"/\1/p' "${VERSION_HEADER_FILE}")
+VERSION_HEADER_FILE="$ZLIB_SOURCE_DIR/mz.h"
+version=$(sed -n -E 's/#define MZ_VERSION "([0-9.]+)"/\1/p' "${VERSION_HEADER_FILE}")
 echo "${version}" > "${stage}/VERSION.txt"
 
 pushd "$ZLIB_SOURCE_DIR"
@@ -111,7 +111,7 @@ pushd "$ZLIB_SOURCE_DIR"
             DEBUG_LDFLAGS="$ARCH_FLAGS $SDK_FLAGS -Wl,-headerpad_max_install_names -Wl,-macos_version_min,$MACOSX_DEPLOYMENT_TARGET"
             RELEASE_LDFLAGS="$ARCH_FLAGS $SDK_FLAGS -Wl,-headerpad_max_install_names -Wl,-macos_version_min,$MACOSX_DEPLOYMENT_TARGET"
 
-            mkdir -p "$stage/include/zlib"
+            mkdir -p "$stage/include/minizip"
             mkdir -p "$stage/lib/debug"
             mkdir -p "$stage/lib/release"
 
@@ -121,7 +121,7 @@ pushd "$ZLIB_SOURCE_DIR"
                 CXXFLAGS="$DEBUG_CXXFLAGS" \
                 CPPFLAGS="$DEBUG_CPPFLAGS" \
                 LDFLAGS="$DEBUG_LDFLAGS" \
-                cmake .. -GXcode -DBUILD_SHARED_LIBS:BOOL=ON -DZLIB_COMPAT:BOOL=ON \
+                cmake .. -GXcode -DBUILD_SHARED_LIBS:BOOL=ON \
                     -DCMAKE_C_FLAGS="$DEBUG_CFLAGS" \
                     -DCMAKE_CXX_FLAGS="$DEBUG_CXXFLAGS" \
                     -DCMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL="0" \
@@ -137,7 +137,9 @@ pushd "$ZLIB_SOURCE_DIR"
                     -DCMAKE_OSX_ARCHITECTURES:STRING=x86_64 \
                     -DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} \
                     -DCMAKE_OSX_SYSROOT=${SDKROOT} \
-                    -DCMAKE_MACOSX_RPATH=YES -DCMAKE_INSTALL_PREFIX=$stage
+                    -DCMAKE_MACOSX_RPATH=YES -DCMAKE_INSTALL_PREFIX=$stage \
+                    -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON \
+                    -DZLIB_INCLUDE_DIRS="${stage}/packages/include/zlib/" -DZLIB_LIBRARIES="${stage}/packages/lib/debug/libz.dylib" -DZLIB_LIBRARY_DIRS="${stage}/packages/lib"
 
                 cmake --build . --config Debug
 
@@ -146,7 +148,7 @@ pushd "$ZLIB_SOURCE_DIR"
                     ctest -C Debug
                 fi
 
-                cp -a Debug/libz*.dylib* "${stage}/lib/debug/"
+                cp -a Debug/libminizip*.dylib* "${stage}/lib/debug/"
             popd
 
             mkdir -p "build_release"
@@ -155,7 +157,7 @@ pushd "$ZLIB_SOURCE_DIR"
                 CXXFLAGS="$RELEASE_CXXFLAGS" \
                 CPPFLAGS="$RELEASE_CPPFLAGS" \
                 LDFLAGS="$RELEASE_LDFLAGS" \
-                cmake .. -GXcode -DBUILD_SHARED_LIBS:BOOL=ON -DZLIB_COMPAT:BOOL=ON \
+                cmake .. -GXcode -DBUILD_SHARED_LIBS:BOOL=ON \
                     -DCMAKE_C_FLAGS="$RELEASE_CFLAGS" \
                     -DCMAKE_CXX_FLAGS="$RELEASE_CXXFLAGS" \
                     -DCMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL="fast" \
@@ -171,7 +173,9 @@ pushd "$ZLIB_SOURCE_DIR"
                     -DCMAKE_OSX_ARCHITECTURES:STRING=x86_64 \
                     -DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} \
                     -DCMAKE_OSX_SYSROOT=${SDKROOT} \
-                    -DCMAKE_MACOSX_RPATH=YES -DCMAKE_INSTALL_PREFIX=$stage
+                    -DCMAKE_MACOSX_RPATH=YES -DCMAKE_INSTALL_PREFIX=$stage \
+                    -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON \
+                    -DZLIB_INCLUDE_DIRS="${stage}/packages/include/zlib/" -DZLIB_LIBRARIES="${stage}/packages/lib/release/libz.dylib" -DZLIB_LIBRARY_DIRS="${stage}/packages/lib"
 
                 cmake --build . --config Release
 
@@ -180,22 +184,23 @@ pushd "$ZLIB_SOURCE_DIR"
                     ctest -C Release
                 fi
 
-                cp -a Release/libz*.dylib* "${stage}/lib/release/"
-
-                cp -a zconf.h "$stage/include/zlib"
+                cp -a Release/libminizip*.dylib* "${stage}/lib/release/"
             popd
 
+            cp -a mz.h "$stage/include/minizip"
+            cp -a mz_compat.h "$stage/include/minizip"
+            cp -a zip.h "$stage/include/minizip"
+            cp -a unzip.h "$stage/include/minizip"
+
             pushd "${stage}/lib/debug"
-                fix_dylib_id "libz.dylib"
-                strip -x -S libz.dylib
+                fix_dylib_id "libminizip.dylib"
+                strip -x -S libminizip.dylib
             popd
 
             pushd "${stage}/lib/release"
-                fix_dylib_id "libz.dylib"
-                strip -x -S libz.dylib
+                fix_dylib_id "libminizip.dylib"
+                strip -x -S libminizip.dylib
             popd
-
-            cp -a zlib.h "$stage/include/zlib"
         ;;            
 
         # -------------------------- linux, linux64 --------------------------
@@ -278,18 +283,10 @@ pushd "$ZLIB_SOURCE_DIR"
         ;;
     esac
     mkdir -p "$stage/LICENSES"
-    # The copyright info for zlib is the tail end of its README file. Tempting
-    # though it is to write something like 'tail -n 31 README', that will
-    # quietly fail if the length of the copyright notice ever changes.
-    # Instead, look for the section header that sets off that passage and copy
-    # from there through EOF. (Given that END is recognized by awk, you might
-    # reasonably expect '/pattern/,END' to work, but no: END can only be used
-    # to fire an action past EOF. Have to simulate by using another regexp we
-    # hope will NOT match.)
-    cp LICENSE.md "$stage/LICENSES/zlib-ng.txt"
-    # In case the section header changes, ensure that zlib.txt is non-empty.
+    cp LICENSE "$stage/LICENSES/minizip-ng.txt"
+    # In case the section header changes, ensure that minizip-ng.txt is non-empty.
     # (With -e in effect, a raw test command has the force of an assert.)
     # Exiting here means we failed to match the copyright section header.
     # Check the README and adjust the awk regexp accordingly.
-    [ -s "$stage/LICENSES/zlib-ng.txt" ]
+    [ -s "$stage/LICENSES/minizip-ng.txt" ]
 popd
