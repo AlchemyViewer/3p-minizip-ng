@@ -9,7 +9,7 @@ set -e
 # bleat on references to undefined shell variables
 set -u
 
-ZLIB_SOURCE_DIR="minizip"
+MZ_SOURCE_DIR="minizip"
 
 top="$(pwd)"
 stage="$top"/stage
@@ -27,11 +27,11 @@ source_environment_tempfile="$stage/source_environment.sh"
 "$autobuild" source_environment > "$source_environment_tempfile"
 . "$source_environment_tempfile"
 
-VERSION_HEADER_FILE="$ZLIB_SOURCE_DIR/mz.h"
-version=$(sed -n -E 's/#define MZ_VERSION "([0-9.]+)"/\1/p' "${VERSION_HEADER_FILE}")
+VERSION_HEADER_FILE="$MZ_SOURCE_DIR/mz.h"
+version=$(sed -n -E 's/#define MZ_VERSION                      [(]"([0-9.]+)"[)]/\1/p' "${VERSION_HEADER_FILE}")
 echo "${version}" > "${stage}/VERSION.txt"
 
-pushd "$ZLIB_SOURCE_DIR"
+pushd "$MZ_SOURCE_DIR"
     case "$AUTOBUILD_PLATFORM" in
 
         # ------------------------ windows, windows64 ------------------------
@@ -45,15 +45,17 @@ pushd "$ZLIB_SOURCE_DIR"
                 archflags=""
             fi
 
-            mkdir -p "$stage/include/zlib"
+            mkdir -p "$stage/include/minizip"
             mkdir -p "$stage/lib/debug"
             mkdir -p "$stage/lib/release"
 
             mkdir -p "build_debug"
             pushd "build_debug"
                 # Invoke cmake and use as official build
-                cmake -E env CFLAGS="$archflags" CXXFLAGS="$archflags /std:c++17 /permissive-" LDFLAGS="/DEBUG:FULL" \
-                cmake -G "$AUTOBUILD_WIN_CMAKE_GEN" -A "$AUTOBUILD_WIN_VSPLATFORM" -T host="$AUTOBUILD_WIN_VSHOST" .. -DBUILD_SHARED_LIBS=ON -DZLIB_COMPAT:BOOL=ON
+
+                cmake -G "$AUTOBUILD_WIN_CMAKE_GEN" -A "$AUTOBUILD_WIN_VSPLATFORM" -T host="$AUTOBUILD_WIN_VSHOST" .. -DBUILD_SHARED_LIBS:BOOL=OFF \
+                    -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF \
+                    -DZLIB_INCLUDE_DIRS="$(cygpath -m $stage)/packages/include/zlib/" -DZLIB_LIBRARIES="$(cygpath -m $stage)/packages/lib/debug/zlibd.lib" -DZLIB_LIBRARY_DIRS="$(cygpath -m $stage)/packages/lib"
 
                 cmake --build . --config Debug --clean-first
 
@@ -62,17 +64,15 @@ pushd "$ZLIB_SOURCE_DIR"
                     ctest -C Debug
                 fi
 
-                cp -a "Debug/zlibd1.dll" "$stage/lib/debug/"
-                cp -a "Debug/zlibd.lib" "$stage/lib/debug/"
-                cp -a "Debug/zlibd.exp" "$stage/lib/debug/"
-                cp -a "Debug/zlibd.pdb" "$stage/lib/debug/"
+                cp -a "Debug/libminizip.lib" "$stage/lib/debug/"
             popd
 
             mkdir -p "build_release"
             pushd "build_release"
                 # Invoke cmake and use as official build
-                cmake -E env CFLAGS="$archflags /Ob3 /GL /Gy /Zi" CXXFLAGS="$archflags /Ob3 /GL /Gy /Zi /std:c++17 /permissive-" LDFLAGS="/LTCG /OPT:REF /OPT:ICF /DEBUG:FULL" \
-                cmake -G "$AUTOBUILD_WIN_CMAKE_GEN" -A "$AUTOBUILD_WIN_VSPLATFORM" -T host="$AUTOBUILD_WIN_VSHOST" .. -DBUILD_SHARED_LIBS=ON -DZLIB_COMPAT:BOOL=ON
+                cmake -G "$AUTOBUILD_WIN_CMAKE_GEN" -A "$AUTOBUILD_WIN_VSPLATFORM" -T host="$AUTOBUILD_WIN_VSHOST" .. -DBUILD_SHARED_LIBS:BOOL=OFF \
+                    -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF \
+                    -DZLIB_INCLUDE_DIRS="$(cygpath -m $stage)/packages/include/zlib/" -DZLIB_LIBRARIES="$(cygpath -m $stage)/packages/lib/release/zlib.lib" -DZLIB_LIBRARY_DIRS="$(cygpath -m $stage)/packages/lib"
 
                 cmake --build . --config Release --clean-first
 
@@ -81,13 +81,24 @@ pushd "$ZLIB_SOURCE_DIR"
                     ctest -C Release
                 fi
 
-                cp -a "Release/zlib1.dll" "$stage/lib/release/"
-                cp -a "Release/zlib.lib" "$stage/lib/release/"
-                cp -a "Release/zlib.exp" "$stage/lib/release/"
-                cp -a "Release/zlib.pdb" "$stage/lib/release/"
-                cp -a zconf.h "$stage/include/zlib"
+                cp -a "Release/libminizip.lib" "$stage/lib/release/"
             popd
-            cp -a zlib.h "$stage/include/zlib"
+            cp -a mz.h "$stage/include/minizip"
+            cp -a mz_os.h "$stage/include/minizip"
+            cp -a mz_crypt.h "$stage/include/minizip"
+            cp -a mz_strm.h "$stage/include/minizip"
+            cp -a mz_strm_buf.h "$stage/include/minizip"
+            cp -a mz_strm_mem.h "$stage/include/minizip"
+            cp -a mz_strm_split.h "$stage/include/minizip"
+            cp -a mz_strm_os.h "$stage/include/minizip"
+            cp -a mz_zip.h "$stage/include/minizip"
+            cp -a mz_zip_rw.h "$stage/include/minizip"
+            cp -a mz_strm_zlib.h "$stage/include/minizip"
+            cp -a mz_strm_pkcrypt.h "$stage/include/minizip"
+            cp -a mz_strm_wzaes.h "$stage/include/minizip"
+            cp -a mz_compat.h "$stage/include/minizip"
+            cp -a zip.h "$stage/include/minizip"
+            cp -a unzip.h "$stage/include/minizip"
         ;;
 
         # ------------------------- darwin, darwin64 -------------------------
@@ -101,7 +112,7 @@ pushd "$ZLIB_SOURCE_DIR"
             ARCH_FLAGS="-arch x86_64"
             SDK_FLAGS="-mmacosx-version-min=${MACOSX_DEPLOYMENT_TARGET} -isysroot ${SDKROOT}"
             DEBUG_COMMON_FLAGS="$ARCH_FLAGS $SDK_FLAGS -Og -g -msse4.2 -fPIC -DPIC"
-            RELEASE_COMMON_FLAGS="$ARCH_FLAGS $SDK_FLAGS -Ofast -ffast-math -flto -g -msse4.2 -fPIC -DPIC -fstack-protector-strong"
+            RELEASE_COMMON_FLAGS="$ARCH_FLAGS $SDK_FLAGS -O3 -g -msse4.2 -fPIC -DPIC -fstack-protector-strong"
             DEBUG_CFLAGS="$DEBUG_COMMON_FLAGS"
             RELEASE_CFLAGS="$RELEASE_COMMON_FLAGS"
             DEBUG_CXXFLAGS="$DEBUG_COMMON_FLAGS -std=c++17"
@@ -121,15 +132,14 @@ pushd "$ZLIB_SOURCE_DIR"
                 CXXFLAGS="$DEBUG_CXXFLAGS" \
                 CPPFLAGS="$DEBUG_CPPFLAGS" \
                 LDFLAGS="$DEBUG_LDFLAGS" \
-                cmake .. -GXcode -DBUILD_SHARED_LIBS:BOOL=ON \
+                cmake .. -GXcode -DBUILD_SHARED_LIBS:BOOL=OFF \
                     -DCMAKE_C_FLAGS="$DEBUG_CFLAGS" \
                     -DCMAKE_CXX_FLAGS="$DEBUG_CXXFLAGS" \
                     -DCMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL="0" \
                     -DCMAKE_XCODE_ATTRIBUTE_GCC_FAST_MATH=NO \
                     -DCMAKE_XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS=YES \
-                    -DCMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT=dwarf-with-dsym \
+                    -DCMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT=dwarf \
                     -DCMAKE_XCODE_ATTRIBUTE_LLVM_LTO=NO \
-                    -DCMAKE_XCODE_ATTRIBUTE_DEAD_CODE_STRIPPING=YES \
                     -DCMAKE_XCODE_ATTRIBUTE_CLANG_X86_VECTOR_INSTRUCTIONS=sse4.2 \
                     -DCMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD="c++17" \
                     -DCMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY="libc++" \
@@ -138,7 +148,7 @@ pushd "$ZLIB_SOURCE_DIR"
                     -DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} \
                     -DCMAKE_OSX_SYSROOT=${SDKROOT} \
                     -DCMAKE_MACOSX_RPATH=YES -DCMAKE_INSTALL_PREFIX=$stage \
-                    -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON \
+                    -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF \
                     -DZLIB_INCLUDE_DIRS="${stage}/packages/include/zlib/" -DZLIB_LIBRARIES="${stage}/packages/lib/debug/libz.dylib" -DZLIB_LIBRARY_DIRS="${stage}/packages/lib"
 
                 cmake --build . --config Debug
@@ -157,15 +167,14 @@ pushd "$ZLIB_SOURCE_DIR"
                 CXXFLAGS="$RELEASE_CXXFLAGS" \
                 CPPFLAGS="$RELEASE_CPPFLAGS" \
                 LDFLAGS="$RELEASE_LDFLAGS" \
-                cmake .. -GXcode -DBUILD_SHARED_LIBS:BOOL=ON \
+                cmake .. -GXcode -DBUILD_SHARED_LIBS:BOOL=OFF \
                     -DCMAKE_C_FLAGS="$RELEASE_CFLAGS" \
                     -DCMAKE_CXX_FLAGS="$RELEASE_CXXFLAGS" \
-                    -DCMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL="fast" \
-                    -DCMAKE_XCODE_ATTRIBUTE_GCC_FAST_MATH=YES \
+                    -DCMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL="3" \
+                    -DCMAKE_XCODE_ATTRIBUTE_GCC_FAST_MATH=NO \
                     -DCMAKE_XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS=YES \
-                    -DCMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT=dwarf-with-dsym \
+                    -DCMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT=dwarf \
                     -DCMAKE_XCODE_ATTRIBUTE_LLVM_LTO=YES \
-                    -DCMAKE_XCODE_ATTRIBUTE_DEAD_CODE_STRIPPING=YES \
                     -DCMAKE_XCODE_ATTRIBUTE_CLANG_X86_VECTOR_INSTRUCTIONS=sse4.2 \
                     -DCMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD="c++17" \
                     -DCMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY="libc++" \
@@ -174,7 +183,7 @@ pushd "$ZLIB_SOURCE_DIR"
                     -DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} \
                     -DCMAKE_OSX_SYSROOT=${SDKROOT} \
                     -DCMAKE_MACOSX_RPATH=YES -DCMAKE_INSTALL_PREFIX=$stage \
-                    -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON \
+                    -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF \
                     -DZLIB_INCLUDE_DIRS="${stage}/packages/include/zlib/" -DZLIB_LIBRARIES="${stage}/packages/lib/release/libz.dylib" -DZLIB_LIBRARY_DIRS="${stage}/packages/lib"
 
                 cmake --build . --config Release
@@ -188,6 +197,18 @@ pushd "$ZLIB_SOURCE_DIR"
             popd
 
             cp -a mz.h "$stage/include/minizip"
+            cp -a mz_os.h "$stage/include/minizip"
+            cp -a mz_crypt.h "$stage/include/minizip"
+            cp -a mz_strm.h "$stage/include/minizip"
+            cp -a mz_strm_buf.h "$stage/include/minizip"
+            cp -a mz_strm_mem.h "$stage/include/minizip"
+            cp -a mz_strm_split.h "$stage/include/minizip"
+            cp -a mz_strm_os.h "$stage/include/minizip"
+            cp -a mz_zip.h "$stage/include/minizip"
+            cp -a mz_zip_rw.h "$stage/include/minizip"
+            cp -a mz_strm_zlib.h "$stage/include/minizip"
+            cp -a mz_strm_pkcrypt.h "$stage/include/minizip"
+            cp -a mz_strm_wzaes.h "$stage/include/minizip"
             cp -a mz_compat.h "$stage/include/minizip"
             cp -a zip.h "$stage/include/minizip"
             cp -a unzip.h "$stage/include/minizip"
@@ -205,19 +226,6 @@ pushd "$ZLIB_SOURCE_DIR"
 
         # -------------------------- linux, linux64 --------------------------
         linux*)
-            # Linux build environment at Linden comes pre-polluted with stuff that can
-            # seriously damage 3rd-party builds.  Environmental garbage you can expect
-            # includes:
-            #
-            #    DISTCC_POTENTIAL_HOSTS     arch           root        CXXFLAGS
-            #    DISTCC_LOCATION            top            branch      CC
-            #    DISTCC_HOSTS               build_name     suffix      CXX
-            #    LSDISTCC_ARGS              repo           prefix      CFLAGS
-            #    cxx_version                AUTOBUILD      SIGN        CPPFLAGS
-            #
-            # So, clear out bits that shouldn't affect our configure-directed build
-            # but which do nonetheless.
-            #
             unset DISTCC_HOSTS CC CXX CFLAGS CPPFLAGS CXXFLAGS
 
             # Default target per autobuild build --address-size

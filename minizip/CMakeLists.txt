@@ -729,6 +729,13 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     $<INSTALL_INTERFACE:${INSTALL_INC_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
+# <ALCHEMY>
+if("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC")
+    target_compile_options(${PROJECT_NAME} PRIVATE /std:c++17 /permissive- /Z7 $<$<CONFIG:Release>:/Ob3> $<$<CONFIG:Release>:/Gy> $<$<EQUAL:${CMAKE_SIZEOF_VOID_P},4>:/arch:SSE2>)
+    target_link_options(${PROJECT_NAME} PRIVATE /DEBUG:FULL $<$<CONFIG:Release>:/OPT:REF> $<$<CONFIG:Release>:/OPT:ICF>)
+endif()
+# </ALCHEMY>
+
 # Create minizip alias
 add_library(MINIZIP::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 

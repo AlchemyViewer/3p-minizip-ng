@@ -1,6 +1,85 @@
 <?xml version="1.0" ?>
 <llsd>
 <map>
+    <key>installables</key>
+    <map>
+      <key>zlib-ng</key>
+      <map>
+        <key>canonical_repo</key>
+        <string>https://git.alchemyviewer.org/alchemy/thirdparty/3p-zlib-ng</string>
+        <key>copyright</key>
+        <string>Copyright (C) 1995-2017 Jean-loup Gailly and Mark Adler</string>
+        <key>description</key>
+        <string>zlib replacement with optimizations for next generation systems.</string>
+        <key>license</key>
+        <string>zlib</string>
+        <key>license_file</key>
+        <string>LICENSES/zlib-ng.txt</string>
+        <key>name</key>
+        <string>zlib-ng</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>46f2b2cca79ea9f60b15efba3a5a844538739d212b306a1e835ea089cbb780643f76f24b0edda1ef83093fe166f21cd4</string>
+              <key>hash_algorithm</key>
+              <string>sha3_384</string>
+              <key>url</key>
+              <string>https://git.alchemyviewer.org/api/v4/projects/148/packages/generic/zlib-ng-777/2.0.2/zlib_ng-2.0.2-darwin64-777.tar.xz</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>24525c88896f643ccf48bc143058b84df684c79238218939ddf2823ae53e86538b1f9cefb44ef5c1cc285fc7e493726e</string>
+              <key>hash_algorithm</key>
+              <string>sha3_384</string>
+              <key>url</key>
+              <string>https://git.alchemyviewer.org/api/v4/projects/148/packages/generic/zlib-ng-777/2.0.2/zlib_ng-2.0.2-linux64-777.tar.xz</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>008e3d0697cc605482bbaa592c301277de695199a1ac6cf089aae60cd8acf39087a448e4da033bfc68beb02815d56858</string>
+              <key>hash_algorithm</key>
+              <string>sha3_384</string>
+              <key>url</key>
+              <string>https://git.alchemyviewer.org/api/v4/projects/148/packages/generic/zlib-ng-777/2.0.2/zlib_ng-2.0.2-windows-777.tar.xz</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>4a938312def98bfdc9f0cde05e1ff20800b7c2df3c59a55fb858e5087859121882fcfc1cf14e7d422584c1595d110840</string>
+              <key>hash_algorithm</key>
+              <string>sha3_384</string>
+              <key>url</key>
+              <string>https://git.alchemyviewer.org/api/v4/projects/148/packages/generic/zlib-ng-777/2.0.2/zlib_ng-2.0.2-windows64-777.tar.xz</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>2.0.2</string>
+      </map>
+    </map>
     <key>package_description</key>
     <map>
       <key>canonical_repo</key>
