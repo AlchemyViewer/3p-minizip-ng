@@ -85,9 +85,9 @@
       <key>canonical_repo</key>
       <string>https://git.alchemyviewer.org/alchemy/thirdparty/3p-minizip-ng</string>
       <key>copyright</key>
-      <string>Copyright (C) 1995-2017 Jean-loup Gailly and Mark Adler</string>
+      <string>Copyright (C) 2010-2021 Nathan Moinvaziri</string>
       <key>description</key>
-      <string>zlib replacement with optimizations for next generation systems.</string>
+      <string>Fork of the popular zip manipulation library found in the zlib distribution.</string>
       <key>license</key>
       <string>zlib</string>
       <key>license_file</key>
@@ -120,8 +120,8 @@
           </map>
           <key>manifest</key>
           <array>
-            <string>include/zlib/*.h</string>
-            <string>LICENSES/zlib-ng.txt</string>
+            <string>include/minizip/*.h</string>
+            <string>LICENSES/minizip-ng.txt</string>
           </array>
           <key>name</key>
           <string>common</string>
