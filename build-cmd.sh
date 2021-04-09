@@ -149,7 +149,7 @@ pushd "$MZ_SOURCE_DIR"
                     -DCMAKE_OSX_SYSROOT=${SDKROOT} \
                     -DCMAKE_MACOSX_RPATH=YES -DCMAKE_INSTALL_PREFIX=$stage \
                     -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF \
-                    -DZLIB_INCLUDE_DIRS="${stage}/packages/include/zlib/" -DZLIB_LIBRARIES="${stage}/packages/lib/debug/libz.dylib" -DZLIB_LIBRARY_DIRS="${stage}/packages/lib"
+                    -DZLIB_INCLUDE_DIRS="${stage}/packages/include/zlib/" -DZLIB_LIBRARIES="${stage}/packages/lib/debug/libz.a" -DZLIB_LIBRARY_DIRS="${stage}/packages/lib"
 
                 cmake --build . --config Debug
 
@@ -158,7 +158,7 @@ pushd "$MZ_SOURCE_DIR"
                     ctest -C Debug
                 fi
 
-                cp -a Debug/libminizip*.dylib* "${stage}/lib/debug/"
+                cp -a Debug/libminizip*.a* "${stage}/lib/debug/"
             popd
 
             mkdir -p "build_release"
@@ -174,7 +174,7 @@ pushd "$MZ_SOURCE_DIR"
                     -DCMAKE_XCODE_ATTRIBUTE_GCC_FAST_MATH=NO \
                     -DCMAKE_XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS=YES \
                     -DCMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT=dwarf \
-                    -DCMAKE_XCODE_ATTRIBUTE_LLVM_LTO=YES \
+                    -DCMAKE_XCODE_ATTRIBUTE_LLVM_LTO=NO \
                     -DCMAKE_XCODE_ATTRIBUTE_CLANG_X86_VECTOR_INSTRUCTIONS=sse4.2 \
                     -DCMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD="c++17" \
                     -DCMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY="libc++" \
@@ -184,7 +184,7 @@ pushd "$MZ_SOURCE_DIR"
                     -DCMAKE_OSX_SYSROOT=${SDKROOT} \
                     -DCMAKE_MACOSX_RPATH=YES -DCMAKE_INSTALL_PREFIX=$stage \
                     -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF \
-                    -DZLIB_INCLUDE_DIRS="${stage}/packages/include/zlib/" -DZLIB_LIBRARIES="${stage}/packages/lib/release/libz.dylib" -DZLIB_LIBRARY_DIRS="${stage}/packages/lib"
+                    -DZLIB_INCLUDE_DIRS="${stage}/packages/include/zlib/" -DZLIB_LIBRARIES="${stage}/packages/lib/release/libz.a" -DZLIB_LIBRARY_DIRS="${stage}/packages/lib"
 
                 cmake --build . --config Release
 
@@ -193,7 +193,7 @@ pushd "$MZ_SOURCE_DIR"
                     ctest -C Release
                 fi
 
-                cp -a Release/libminizip*.dylib* "${stage}/lib/release/"
+                cp -a Release/libminizip*.a* "${stage}/lib/release/"
             popd
 
             cp -a mz.h "$stage/include/minizip"
@@ -212,16 +212,6 @@ pushd "$MZ_SOURCE_DIR"
             cp -a mz_compat.h "$stage/include/minizip"
             cp -a zip.h "$stage/include/minizip"
             cp -a unzip.h "$stage/include/minizip"
-
-            pushd "${stage}/lib/debug"
-                fix_dylib_id "libminizip.dylib"
-                strip -x -S libminizip.dylib
-            popd
-
-            pushd "${stage}/lib/release"
-                fix_dylib_id "libminizip.dylib"
-                strip -x -S libminizip.dylib
-            popd
         ;;            
 
         # -------------------------- linux, linux64 --------------------------
