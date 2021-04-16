@@ -20,11 +20,11 @@ option(MZ_LIBCOMP "Enables Apple compression" OFF)
 option(MZ_FETCH_LIBS "Enables fetching third-party libraries if not found" OFF)
 option(MZ_FORCE_FETCH_LIBS "Enables fetching third-party libraries always" OFF)
 # Encryption support options
-option(MZ_PKCRYPT "Enables PKWARE traditional encryption" ON)
-option(MZ_WZAES "Enables WinZIP AES encryption" ON)
+option(MZ_PKCRYPT "Enables PKWARE traditional encryption" OFF)
+option(MZ_WZAES "Enables WinZIP AES encryption" OFF)
 option(MZ_OPENSSL "Enables OpenSSL for encryption" OFF)
 option(MZ_LIBBSD "Enable libbsd crypto random" OFF)
-option(MZ_SIGNING "Enables zip signing support" ON)
+option(MZ_SIGNING "Enables zip signing support" OFF)
 # Character conversion options
 option(MZ_ICONV "Enables iconv for string encoding conversion" ON)
 # Code generation options
