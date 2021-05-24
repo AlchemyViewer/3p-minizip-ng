@@ -245,39 +245,76 @@ pushd "$MZ_SOURCE_DIR"
 
             OLD_PKG_CONFIG_PATH="${PKG_CONFIG_PATH:-}"
 
-            # Debug first
-            export PKG_CONFIG_PATH="$stage/packages/lib/debug/pkgconfig:${OLD_PKG_CONFIG_PATH}"
+            mkdir -p "$stage/include/minizip"
+            mkdir -p "$stage/lib/debug"
+            mkdir -p "$stage/lib/release"
 
-            CFLAGS="$DEBUG_CFLAGS" CXXFLAGS="$DEBUG_CXXFLAGS" CPPFLAGS="$DEBUG_CPPFLAGS" \
-                ./configure --static --zlib-compat --prefix="\${AUTOBUILD_PACKAGES_DIR}" \
-                    --includedir="\${prefix}/include/zlib" --libdir="\${prefix}/lib/debug"
-            make
-            make install DESTDIR="$stage"
+            mkdir -p "build_debug"
+            pushd "build_debug"
+                # Debug first
+                export PKG_CONFIG_PATH="$stage/packages/lib/debug/pkgconfig:${OLD_PKG_CONFIG_PATH}"
+   
+                CFLAGS="$DEBUG_CFLAGS" \
+                CXXFLAGS="$DEBUG_CXXFLAGS" \
+                CPPFLAGS="$DEBUG_CPPFLAGS" \
+                cmake .. -G"Unix Makefiles" -DBUILD_SHARED_LIBS:BOOL=OFF \
+                    -DCMAKE_C_FLAGS="$DEBUG_CFLAGS" \
+                    -DCMAKE_CXX_FLAGS="$DEBUG_CXXFLAGS" \
+                    -DCMAKE_INSTALL_PREFIX=$stage \
+                    -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF \
+                    -DZLIB_INCLUDE_DIRS="${stage}/packages/include/zlib/" -DZLIB_LIBRARIES="${stage}/packages/lib/debug/libz.a" -DZLIB_LIBRARY_DIRS="${stage}/packages/lib"
 
-            # conditionally run unit tests
-            if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
-                make test
-            fi
+                cmake --build . --config Debug
 
-            # clean the build artifacts
-            make distclean
+                # conditionally run unit tests
+                if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
+                    ctest -C Debug
+                fi
 
-            # Release last
-            export PKG_CONFIG_PATH="$stage/packages/lib/release/pkgconfig:${OLD_PKG_CONFIG_PATH}"
+                cp -a libminizip*.a* "${stage}/lib/debug/"
+            popd
 
-            CFLAGS="$RELEASE_CFLAGS" CXXFLAGS="$RELEASE_CXXFLAGS" CPPFLAGS="$RELEASE_CPPFLAGS" \
-                ./configure --static --zlib-compat --prefix="\${AUTOBUILD_PACKAGES_DIR}" \
-                    --includedir="\${prefix}/include/zlib" --libdir="\${prefix}/lib/release"
-            make
-            make install DESTDIR="$stage"
+            mkdir -p "build_release"
+            pushd "build_release"
+                # Release last
+                export PKG_CONFIG_PATH="$stage/packages/lib/release/pkgconfig:${OLD_PKG_CONFIG_PATH}"
 
-            # conditionally run unit tests
-            if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
-                make test
-            fi
+                CFLAGS="$RELEASE_CFLAGS" \
+                CXXFLAGS="$RELEASE_CXXFLAGS" \
+                CPPFLAGS="$RELEASE_CPPFLAGS" \
+                cmake .. -G"Unix Makefiles" -DBUILD_SHARED_LIBS:BOOL=OFF \
+                    -DCMAKE_C_FLAGS="$RELEASE_CFLAGS" \
+                    -DCMAKE_CXX_FLAGS="$RELEASE_CXXFLAGS" \
+                    -DCMAKE_INSTALL_PREFIX=$stage \
+                    -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF \
+                    -DZLIB_INCLUDE_DIRS="${stage}/packages/include/zlib/" -DZLIB_LIBRARIES="${stage}/packages/lib/release/libz.a" -DZLIB_LIBRARY_DIRS="${stage}/packages/lib"
 
-            # clean the build artifacts
-            make distclean
+                cmake --build . --config Release
+
+                # conditionally run unit tests
+                if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
+                    ctest -C Release
+                fi
+
+                cp -a libminizip*.a* "${stage}/lib/release/"
+            popd
+
+            cp -a mz.h "$stage/include/minizip"
+            cp -a mz_os.h "$stage/include/minizip"
+            cp -a mz_crypt.h "$stage/include/minizip"
+            cp -a mz_strm.h "$stage/include/minizip"
+            cp -a mz_strm_buf.h "$stage/include/minizip"
+            cp -a mz_strm_mem.h "$stage/include/minizip"
+            cp -a mz_strm_split.h "$stage/include/minizip"
+            cp -a mz_strm_os.h "$stage/include/minizip"
+            cp -a mz_zip.h "$stage/include/minizip"
+            cp -a mz_zip_rw.h "$stage/include/minizip"
+            cp -a mz_strm_zlib.h "$stage/include/minizip"
+            cp -a mz_strm_pkcrypt.h "$stage/include/minizip"
+            cp -a mz_strm_wzaes.h "$stage/include/minizip"
+            cp -a mz_compat.h "$stage/include/minizip"
+            cp -a zip.h "$stage/include/minizip"
+            cp -a unzip.h "$stage/include/minizip"
         ;;
     esac
     mkdir -p "$stage/LICENSES"
