@@ -306,13 +306,6 @@ pushd "$MZ_SOURCE_DIR"
                 export CPPFLAGS="$TARGET_CPPFLAGS"
             fi
 
-            # Fix up path for pkgconfig
-            if [ -d "$stage/packages/lib/release/pkgconfig" ]; then
-                fix_pkgconfig_prefix "$stage/packages"
-            fi
-
-            OLD_PKG_CONFIG_PATH="${PKG_CONFIG_PATH:-}"
-
             mkdir -p "$stage/include/minizip"
             mkdir -p "$stage/lib/debug"
             mkdir -p "$stage/lib/release"
@@ -320,8 +313,6 @@ pushd "$MZ_SOURCE_DIR"
             mkdir -p "build_debug"
             pushd "build_debug"
                 # Debug first
-                export PKG_CONFIG_PATH="$stage/packages/lib/debug/pkgconfig:${OLD_PKG_CONFIG_PATH}"
-   
                 CFLAGS="$DEBUG_CFLAGS" \
                 CXXFLAGS="$DEBUG_CXXFLAGS" \
                 CPPFLAGS="$DEBUG_CPPFLAGS" \
@@ -345,8 +336,6 @@ pushd "$MZ_SOURCE_DIR"
             mkdir -p "build_release"
             pushd "build_release"
                 # Release last
-                export PKG_CONFIG_PATH="$stage/packages/lib/release/pkgconfig:${OLD_PKG_CONFIG_PATH}"
-
                 CFLAGS="$RELEASE_CFLAGS" \
                 CXXFLAGS="$RELEASE_CXXFLAGS" \
                 CPPFLAGS="$RELEASE_CPPFLAGS" \
