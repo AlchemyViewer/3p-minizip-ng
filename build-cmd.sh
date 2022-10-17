@@ -53,7 +53,7 @@ pushd "$MZ_SOURCE_DIR"
             pushd "build_debug"
                 # Invoke cmake and use as official build
 
-                cmake -G "$AUTOBUILD_WIN_CMAKE_GEN" -A "$AUTOBUILD_WIN_VSPLATFORM" -T host="$AUTOBUILD_WIN_VSHOST" .. -DBUILD_SHARED_LIBS:BOOL=OFF \
+                cmake -G "$AUTOBUILD_WIN_CMAKE_GEN" -A "$AUTOBUILD_WIN_VSPLATFORM" .. -DBUILD_SHARED_LIBS:BOOL=OFF \
                     -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF \
                     -DZLIB_INCLUDE_DIRS="$(cygpath -m $stage)/packages/include/zlib/" -DZLIB_LIBRARIES="$(cygpath -m $stage)/packages/lib/debug/zlibd.lib" -DZLIB_LIBRARY_DIRS="$(cygpath -m $stage)/packages/lib"
 
@@ -70,7 +70,7 @@ pushd "$MZ_SOURCE_DIR"
             mkdir -p "build_release"
             pushd "build_release"
                 # Invoke cmake and use as official build
-                cmake -G "$AUTOBUILD_WIN_CMAKE_GEN" -A "$AUTOBUILD_WIN_VSPLATFORM" -T host="$AUTOBUILD_WIN_VSHOST" .. -DBUILD_SHARED_LIBS:BOOL=OFF \
+                cmake -G "$AUTOBUILD_WIN_CMAKE_GEN" -A "$AUTOBUILD_WIN_VSPLATFORM" .. -DBUILD_SHARED_LIBS:BOOL=OFF \
                     -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF \
                     -DZLIB_INCLUDE_DIRS="$(cygpath -m $stage)/packages/include/zlib/" -DZLIB_LIBRARIES="$(cygpath -m $stage)/packages/lib/release/zlib.lib" -DZLIB_LIBRARY_DIRS="$(cygpath -m $stage)/packages/lib"
 
