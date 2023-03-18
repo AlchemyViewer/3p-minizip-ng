@@ -5,6 +5,10 @@ include(FetchContent)
 enable_language(CXX)
 
 if(NOT TARGET GTest::GTest)
+    find_package(GTest QUIET)
+endif()
+
+if(NOT TARGET GTest::GTest)
     if (WIN32)
         # Prevent overriding the parent project's compiler/linker settings for Windows
         set(gtest_force_shared_crt ON CACHE BOOL
