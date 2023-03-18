@@ -82,6 +82,8 @@ pushd "$MZ_SOURCE_DIR"
                 fi
 
                 cp -a "Release/libminizip.lib" "$stage/lib/release/"
+                cp -a zip.h "$stage/include/minizip"
+                cp -a unzip.h "$stage/include/minizip"
             popd
             cp -a mz.h "$stage/include/minizip"
             cp -a mz_os.h "$stage/include/minizip"
@@ -97,8 +99,6 @@ pushd "$MZ_SOURCE_DIR"
             cp -a mz_strm_pkcrypt.h "$stage/include/minizip"
             cp -a mz_strm_wzaes.h "$stage/include/minizip"
             cp -a mz_compat.h "$stage/include/minizip"
-            cp -a zip.h "$stage/include/minizip"
-            cp -a unzip.h "$stage/include/minizip"
         ;;
 
         # ------------------------- darwin, darwin64 -------------------------
@@ -362,6 +362,8 @@ pushd "$MZ_SOURCE_DIR"
                 fi
 
                 cp -a libminizip*.a* "${stage}/lib/release/"
+                cp -a zip.h "$stage/include/minizip"
+                cp -a unzip.h "$stage/include/minizip"
             popd
 
             cp -a mz.h "$stage/include/minizip"
@@ -378,8 +380,6 @@ pushd "$MZ_SOURCE_DIR"
             cp -a mz_strm_pkcrypt.h "$stage/include/minizip"
             cp -a mz_strm_wzaes.h "$stage/include/minizip"
             cp -a mz_compat.h "$stage/include/minizip"
-            cp -a zip.h "$stage/include/minizip"
-            cp -a unzip.h "$stage/include/minizip"
         ;;
     esac
     mkdir -p "$stage/LICENSES"
