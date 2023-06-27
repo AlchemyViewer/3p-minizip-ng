@@ -14,6 +14,7 @@
 #include "mz_strm_split.h"
 
 #include <stdio.h> /* snprintf */
+#include <string.h>
 
 #if defined(_MSC_VER) && (_MSC_VER < 1900)
 #  define snprintf _snprintf
@@ -396,15 +397,10 @@ int32_t mz_stream_split_set_prop_int64(void *stream, int32_t prop, int64_t value
     return MZ_OK;
 }
 
-void *mz_stream_split_create(void **stream) {
-    mz_stream_split *split = NULL;
-
-    split = (mz_stream_split *)calloc(1, sizeof(mz_stream_split));
+void *mz_stream_split_create(void) {
+    mz_stream_split *split = (mz_stream_split *)calloc(1, sizeof(mz_stream_split));
     if (split)
         split->stream.vtbl = &mz_stream_split_vtbl;
-    if (stream)
-        *stream = split;
-
     return split;
 }
 
