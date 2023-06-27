@@ -287,7 +287,7 @@ pushd "$MZ_SOURCE_DIR"
             lipo -create ${stage}/release_x86/lib/libminizip.a ${stage}/release_arm64/lib/libminizip.a -output ${stage}/lib/release/libminizip.a
 
             # copy headers
-            mv $stage/release_x86/include/* $stage/include/minizip
+            mv $stage/release_x86/include/minizip/* $stage/include/minizip
         ;;
 
         # -------------------------- linux, linux64 --------------------------
