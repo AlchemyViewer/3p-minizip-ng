@@ -8,7 +8,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 # Library version
-set(VERSION "4.0.2")
+set(VERSION "4.0.3")
 # API version
 set(SOVERSION "4")
 
@@ -39,17 +39,17 @@ message(STATUS "Using CMake version ${CMAKE_VERSION}")
 option(MZ_COMPAT "Enables compatibility layer" ON)
 # Compression library options
 option(MZ_ZLIB "Enables ZLIB compression" ON)
-option(MZ_BZIP2 "Enables BZIP2 compression" OFF)
-option(MZ_LZMA "Enables LZMA & XZ compression" OFF)
-option(MZ_ZSTD "Enables ZSTD compression" OFF)
-option(MZ_LIBCOMP "Enables Apple compression" OFF)
-option(MZ_FETCH_LIBS "Enables fetching third-party libraries if not found" OFF)
+option(MZ_BZIP2 "Enables BZIP2 compression" ON)
+option(MZ_LZMA "Enables LZMA & XZ compression" ON)
+option(MZ_ZSTD "Enables ZSTD compression" ON)
+cmake_dependent_option(MZ_LIBCOMP "Enables Apple compression" ON "APPLE" OFF)
+option(MZ_FETCH_LIBS "Enables fetching third-party libraries if not found" ${WIN32})
 option(MZ_FORCE_FETCH_LIBS "Enables fetching third-party libraries always" OFF)
 # Encryption support options
-option(MZ_PKCRYPT "Enables PKWARE traditional encryption" OFF)
-option(MZ_WZAES "Enables WinZIP AES encryption" OFF)
-option(MZ_OPENSSL "Enables OpenSSL for encryption" OFF)
-option(MZ_LIBBSD "Enable libbsd crypto random" OFF)
+option(MZ_PKCRYPT "Enables PKWARE traditional encryption" ON)
+option(MZ_WZAES "Enables WinZIP AES encryption" ON)
+cmake_dependent_option(MZ_OPENSSL "Enables OpenSSL for encryption" ON "UNIX" OFF)
+cmake_dependent_option(MZ_LIBBSD "Builds with libbsd crypto random" ON "UNIX" OFF)
 # Character conversion options
 option(MZ_ICONV "Enables iconv for string encoding conversion" ON)
 # Code generation options
@@ -172,13 +172,13 @@ endif()
 
 if(MZ_ZLIB)
     # Check if zlib is present
-    if(NOT MZ_ZIB_OVERRIDE AND NOT MZ_FORCE_FETCH_LIBS)
+    if(NOT MZ_ZLIB_OVERRIDE AND NOT MZ_FORCE_FETCH_LIBS)
         find_package(ZLIBNG QUIET)
         find_package(ZLIB QUIET)
         set(ZLIB_VERSION ${ZLIB_VERSION_STRING})
     endif()
 
-    if(MZ_ZIB_OVERRIDE AND NOT MZ_FORCE_FETCH_LIBS)
+    if(MZ_ZLIB_OVERRIDE AND NOT MZ_FORCE_FETCH_LIBS)
         set(ZLIB_FOUND ON)
 
         list(APPEND MINIZIP_INC ${ZLIB_INCLUDE_DIRS})
@@ -721,13 +721,6 @@ if(MZ_COMPAT)
     target_include_directories(${MINIZIP_TARGET} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
 endif()
-
-# <ALCHEMY>
-if("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC")
-    target_compile_options(${MINIZIP_TARGET} PRIVATE /std:c++17 /permissive- /Z7 $<$<CONFIG:Release>:/Ob3> $<$<CONFIG:Release>:/Gy> $<$<EQUAL:${CMAKE_SIZEOF_VOID_P},4>:/arch:SSE2>)
-    target_link_options(${MINIZIP_TARGET} PRIVATE /DEBUG:FULL $<$<CONFIG:Release>:/OPT:REF> $<$<CONFIG:Release>:/OPT:ICF>)
-endif()
-# </ALCHEMY>
 
 # Install files
 if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
