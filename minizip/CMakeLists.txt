@@ -8,7 +8,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 # Library version
-set(VERSION "4.0.3")
+set(VERSION "4.0.4")
 # API version
 set(SOVERSION "4")
 
@@ -38,18 +38,18 @@ message(STATUS "Using CMake version ${CMAKE_VERSION}")
 # Compatibility options
 option(MZ_COMPAT "Enables compatibility layer" ON)
 # Compression library options
-option(MZ_ZLIB "Enables ZLIB compression" ON)
+option(MZ_ZLIB "Enables ZLIB compression" OFF)
 option(MZ_BZIP2 "Enables BZIP2 compression" OFF)
 option(MZ_LZMA "Enables LZMA & XZ compression" OFF)
 option(MZ_ZSTD "Enables ZSTD compression" OFF)
-option(MZ_LIBCOMP "Enables Apple compression" OFF)
+cmake_dependent_option(MZ_LIBCOMP "Enables Apple compression" ON "APPLE" OFF)
 option(MZ_FETCH_LIBS "Enables fetching third-party libraries if not found" OFF)
 option(MZ_FORCE_FETCH_LIBS "Enables fetching third-party libraries always" OFF)
 # Encryption support options
 option(MZ_PKCRYPT "Enables PKWARE traditional encryption" OFF)
 option(MZ_WZAES "Enables WinZIP AES encryption" OFF)
-option(MZ_OPENSSL "Enables OpenSSL for encryption" OFF)
-option(MZ_LIBBSD "Enable libbsd crypto random" OFF)
+cmake_dependent_option(MZ_OPENSSL "Enables OpenSSL for encryption" ON "UNIX" OFF)
+cmake_dependent_option(MZ_LIBBSD "Builds with libbsd crypto random" ON "UNIX" OFF)
 # Character conversion options
 option(MZ_ICONV "Enables iconv for string encoding conversion" ON)
 # Code generation options
