@@ -64,7 +64,7 @@ pushd "$MZ_SOURCE_DIR"
                     ctest -C Debug
                 fi
 
-                cp -a "Debug/libminizip.lib" "$stage/lib/debug/"
+                cp -a "libminizip.lib" "$stage/lib/debug/"
             popd
 
             mkdir -p "build_release"
@@ -81,7 +81,7 @@ pushd "$MZ_SOURCE_DIR"
                     ctest -C Release
                 fi
 
-                cp -a "Release/libminizip.lib" "$stage/lib/release/"
+                cp -a "libminizip.lib" "$stage/lib/release/"
                 cp -a zip.h "$stage/include/minizip"
                 cp -a unzip.h "$stage/include/minizip"
             popd
