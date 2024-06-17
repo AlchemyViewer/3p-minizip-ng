@@ -38,13 +38,6 @@ pushd "$MZ_SOURCE_DIR"
         windows*)
             load_vsvars
 
-            if [ "$AUTOBUILD_ADDRSIZE" = 32 ]
-            then
-                archflags="/arch:SSE2"
-            else
-                archflags=""
-            fi
-
             mkdir -p "$stage/include/minizip"
             mkdir -p "$stage/lib/debug"
             mkdir -p "$stage/lib/release"
@@ -134,7 +127,7 @@ pushd "$MZ_SOURCE_DIR"
 
                 # conditionally run unit tests
                 if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
-                    ctest -C Release || true
+                    ctest -C Release
                 fi
             popd
 
@@ -158,7 +151,7 @@ pushd "$MZ_SOURCE_DIR"
 
                 # conditionally run unit tests
                 if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
-                    ctest -C Release || true
+                    ctest -C Release
                 fi
             popd
 
