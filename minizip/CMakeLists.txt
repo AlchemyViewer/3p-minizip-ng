@@ -350,7 +350,7 @@ endif()
 
 if(MZ_ZSTD)
     # Check if zstd is present
-    if(NOT MZ_FORCE_FETCH_LIBS)
+    if(NOT MZ_ZSTD_OVERRIDE AND NOT MZ_FORCE_FETCH_LIBS)
         find_package(PkgConfig QUIET)
         if(PKGCONFIG_FOUND)
             pkg_check_modules(ZSTD libzstd)
@@ -367,7 +367,15 @@ if(MZ_ZSTD)
         endif()
     endif()
 
-    if(ZSTD_FOUND AND NOT MZ_FORCE_FETCH_LIBS)
+    if(MZ_ZSTD_OVERRIDE AND NOT MZ_FORCE_FETCH_LIBS)
+        set(ZSTD_FOUND ON)
+
+        list(APPEND MINIZIP_INC ${ZSTD_INCLUDE_DIRS})
+        list(APPEND MINIZIP_LIB ${ZSTD_LIBRARIES})
+        list(APPEND MINIZIP_LBD ${ZSTD_LIBRARY_DIRS})
+
+        set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lzstd")
+    elseif(ZSTD_FOUND AND NOT MZ_FORCE_FETCH_LIBS)
         message(STATUS "Using ZSTD ${ZSTD_VERSION}")
 
         list(APPEND MINIZIP_INC ${ZSTD_INCLUDE_DIRS})

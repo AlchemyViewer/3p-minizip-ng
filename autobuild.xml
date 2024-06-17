@@ -69,6 +69,74 @@
         <key>description</key>
         <string>zlib replacement with optimizations for next generation systems.</string>
       </map>
+      <key>zstd</key>
+      <map>
+        <key>platforms</key>
+        <map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>ce05e053a91588afcec06b2019f981c30bf4f01d8f9fdedf7ca55b98c02f6a2fd52389f5e8aca7141749edb1b251bc2adc96d2d27be1e1529ac1900466ac4ffa</string>
+              <key>hash_algorithm</key>
+              <string>blake2b</string>
+              <key>url</key>
+              <string>https://github.com/AlchemyViewer/3p-zstd/releases/download/v1.5.6-7f7a1b5/zstd-1.5.6-windows64-9556372916.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>49f99846168a81befd0a4a58f70e52c036b24f0556f443d1f67945aa7bc46c55f419504b5f3ec01c6e4d68d6379c59a85a1e50caae6c77d8b5de90fbe37b309e</string>
+              <key>hash_algorithm</key>
+              <string>blake2b</string>
+              <key>url</key>
+              <string>https://github.com/AlchemyViewer/3p-zstd/releases/download/v1.5.6-7f7a1b5/zstd-1.5.6-darwin64-9556372916.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>7292d63b869a268c7afb7fc226f8fe3f0bb204df7492727761e47707dc6a5cf33127909c2141bd7d185069aa8ffe7aaa32cca884b0c36a997b71b5bd5dd1c9a6</string>
+              <key>hash_algorithm</key>
+              <string>blake2b</string>
+              <key>url</key>
+              <string>https://github.com/AlchemyViewer/3p-zstd/releases/download/v1.5.6-7f7a1b5/zstd-1.5.6-linux64-9556372916.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
+          </map>
+        </map>
+        <key>license</key>
+        <string>BSD</string>
+        <key>license_file</key>
+        <string>LICENSES/zstd.txt</string>
+        <key>copyright</key>
+        <string>Copyright (c) 2016-present, Facebook, Inc. All rights reserved.</string>
+        <key>version</key>
+        <string>1.5.6</string>
+        <key>name</key>
+        <string>zstd</string>
+        <key>vcs_branch</key>
+        <string>refs/tags/v1.5.6-7f7a1b5</string>
+        <key>vcs_revision</key>
+        <string>7f7a1b5e6c720561e7de963635e37c9a0052caae</string>
+        <key>vcs_url</key>
+        <string>git://github.com/AlchemyViewer/3p-zstd.git</string>
+        <key>canonical_repo</key>
+        <string>https://github.com/AlchemyViewer/3p-zstd</string>
+        <key>description</key>
+        <string>Zstandard - Fast real-time compression algorithm</string>
+      </map>
     </map>
     <key>package_description</key>
     <map>
