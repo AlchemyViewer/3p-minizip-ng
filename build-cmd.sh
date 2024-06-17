@@ -53,8 +53,8 @@ pushd "$MZ_SOURCE_DIR"
             pushd "build_debug"
                 # Invoke cmake and use as official build
 
-                cmake -G Ninja .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS:BOOL=OFF \
-                    -DMZ_ZLIB=ON -DMZ_ZLIB_OVERRIDE=ON -DMZ_FETCH_LIBS=OFF -DMZ_BUILD_UNIT_TESTS=ON \
+                cmake -G Ninja .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS:BOOL=OFF -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON \
+                    -DMZ_ZLIB=ON -DMZ_ZLIB_OVERRIDE=ON -DMZ_FETCH_LIBS=OFF \
                     -DZLIB_INCLUDE_DIRS="$(cygpath -m $stage)/packages/include/zlib/" -DZLIB_LIBRARIES="$(cygpath -m $stage)/packages/lib/debug/zlibd.lib" -DZLIB_LIBRARY_DIRS="$(cygpath -m $stage)/packages/lib"
 
                 cmake --build . --config Debug --clean-first
@@ -70,8 +70,8 @@ pushd "$MZ_SOURCE_DIR"
             mkdir -p "build_release"
             pushd "build_release"
                 # Invoke cmake and use as official build
-                cmake -G Ninja .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS:BOOL=OFF \
-                    -DMZ_ZLIB=ON -DMZ_ZLIB_OVERRIDE=ON -DMZ_FETCH_LIBS=OFF -DMZ_BUILD_UNIT_TESTS=ON \
+                cmake -G Ninja .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS:BOOL=OFF -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON \
+                    -DMZ_ZLIB=ON -DMZ_ZLIB_OVERRIDE=ON -DMZ_FETCH_LIBS=OFF \
                     -DZLIB_INCLUDE_DIRS="$(cygpath -m $stage)/packages/include/zlib/" -DZLIB_LIBRARIES="$(cygpath -m $stage)/packages/lib/release/zlib.lib" -DZLIB_LIBRARY_DIRS="$(cygpath -m $stage)/packages/lib"
 
                 cmake --build . --config Release --clean-first
@@ -126,7 +126,7 @@ pushd "$MZ_SOURCE_DIR"
                     -DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} \
                     -DCMAKE_MACOSX_RPATH=YES \
                     -DCMAKE_INSTALL_PREFIX="$stage/release_x86" \
-                    -DMZ_LIBCOMP=OFF -DMZ_ZLIB=ON -DMZ_ZLIB_OVERRIDE=ON -DMZ_FETCH_LIBS=OFF -DMZ_BUILD_UNIT_TESTS=ON \
+                    -DMZ_LIBCOMP=OFF -DMZ_ZLIB=ON -DMZ_ZLIB_OVERRIDE=ON -DMZ_FETCH_LIBS=OFF -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON \
                     -DZLIB_INCLUDE_DIRS="${stage}/packages/include/zlib/" -DZLIB_LIBRARIES="${stage}/packages/lib/release/libz.a" -DZLIB_LIBRARY_DIRS="${stage}/packages/lib"
 
                 cmake --build . --config Release
@@ -150,7 +150,7 @@ pushd "$MZ_SOURCE_DIR"
                     -DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} \
                     -DCMAKE_MACOSX_RPATH=YES \
                     -DCMAKE_INSTALL_PREFIX="$stage/release_arm64" \
-                    -DMZ_LIBCOMP=OFF -DMZ_ZLIB=ON -DMZ_ZLIB_OVERRIDE=ON -DMZ_FETCH_LIBS=OFF -DMZ_BUILD_UNIT_TESTS=ON \
+                    -DMZ_LIBCOMP=OFF -DMZ_ZLIB=ON -DMZ_ZLIB_OVERRIDE=ON -DMZ_FETCH_LIBS=OFF -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON \
                     -DZLIB_INCLUDE_DIRS="${stage}/packages/include/zlib/" -DZLIB_LIBRARIES="${stage}/packages/lib/release/libz.a" -DZLIB_LIBRARY_DIRS="${stage}/packages/lib"
 
                 cmake --build . --config Release
@@ -216,7 +216,7 @@ pushd "$MZ_SOURCE_DIR"
                     -DCMAKE_C_FLAGS="$opts_c" \
                     -DCMAKE_CXX_FLAGS="$opts_cxx" \
                     -DCMAKE_INSTALL_PREFIX=$stage \
-                    -DMZ_ZLIB=ON -DMZ_ZLIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF -DMZ_BUILD_UNIT_TESTS=ON \
+                    -DMZ_ZLIB=ON -DMZ_ZLIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON \
                     -DZLIB_INCLUDE_DIRS="${stage}/packages/include/zlib/" -DZLIB_LIBRARIES="${stage}/packages/lib/release/libz.a" -DZLIB_LIBRARY_DIRS="${stage}/packages/lib"
 
                 cmake --build . --config Release
