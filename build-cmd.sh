@@ -50,7 +50,7 @@ pushd "$MZ_SOURCE_DIR"
                     -DMZ_ZLIB=ON -DMZ_ZLIB_OVERRIDE=ON -DMZ_FETCH_LIBS=OFF \
                     -DZLIB_INCLUDE_DIRS="$(cygpath -m $stage)/packages/include/zlib/" -DZLIB_LIBRARIES="$(cygpath -m $stage)/packages/lib/debug/zlibd.lib" -DZLIB_LIBRARY_DIRS="$(cygpath -m $stage)/packages/lib" \
                     -DMZ_ZSTD=ON -DMZ_ZSTD_OVERRIDE=ON \
-                    -DZLIB_INCLUDE_DIRS="$(cygpath -m $stage)/packages/include/" -DZSTD_LIBRARIES="$(cygpath -m $stage)/packages/lib/debug/zstd_static.lib" -DZSTD_LIBRARY_DIRS="$(cygpath -m $stage)/packages/lib"
+                    -DZSTD_INCLUDE_DIRS="$(cygpath -m $stage)/packages/include/" -DZSTD_LIBRARIES="$(cygpath -m $stage)/packages/lib/debug/zstd_static.lib" -DZSTD_LIBRARY_DIRS="$(cygpath -m $stage)/packages/lib"
 
                 cmake --build . --config Debug --clean-first
 
@@ -59,7 +59,7 @@ pushd "$MZ_SOURCE_DIR"
                     ctest -C Debug
                 fi
 
-                cp -a "libminizip.lib" "$stage/lib/debug/"
+                cp -a "minizip.lib" "$stage/lib/debug/"
             popd
 
             mkdir -p "build_release"
@@ -69,7 +69,7 @@ pushd "$MZ_SOURCE_DIR"
                     -DMZ_ZLIB=ON -DMZ_ZLIB_OVERRIDE=ON -DMZ_FETCH_LIBS=OFF \
                     -DZLIB_INCLUDE_DIRS="$(cygpath -m $stage)/packages/include/zlib/" -DZLIB_LIBRARIES="$(cygpath -m $stage)/packages/lib/release/zlib.lib" -DZLIB_LIBRARY_DIRS="$(cygpath -m $stage)/packages/lib" \
                     -DMZ_ZSTD=ON -DMZ_ZSTD_OVERRIDE=ON \
-                    -DZLIB_INCLUDE_DIRS="$(cygpath -m $stage)/packages/include/" -DZSTD_LIBRARIES="$(cygpath -m $stage)/packages/lib/release/zstd_static.lib" -DZSTD_LIBRARY_DIRS="$(cygpath -m $stage)/packages/lib"
+                    -DZSTD_INCLUDE_DIRS="$(cygpath -m $stage)/packages/include/" -DZSTD_LIBRARIES="$(cygpath -m $stage)/packages/lib/release/zstd_static.lib" -DZSTD_LIBRARY_DIRS="$(cygpath -m $stage)/packages/lib"
 
                 cmake --build . --config Release --clean-first
 
@@ -78,7 +78,7 @@ pushd "$MZ_SOURCE_DIR"
                     ctest -C Release
                 fi
 
-                cp -a "libminizip.lib" "$stage/lib/release/"
+                cp -a "minizip.lib" "$stage/lib/release/"
                 cp -a zip.h "$stage/include/minizip"
                 cp -a unzip.h "$stage/include/minizip"
             popd
