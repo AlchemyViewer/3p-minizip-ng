@@ -204,7 +204,6 @@ pushd "$MZ_SOURCE_DIR"
             fi
 
             mkdir -p "$stage/include/minizip"
-            mkdir -p "$stage/lib/release"
 
             mkdir -p "build_release"
             pushd "build_release"
@@ -217,7 +216,7 @@ pushd "$MZ_SOURCE_DIR"
                     -DCMAKE_CXX_FLAGS="$opts_cxx" \
                     -DCMAKE_INSTALL_PREFIX=$stage \
                     -DMZ_ZLIB=ON -DMZ_ZLIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON \
-                    -DZLIB_INCLUDE_DIRS="${stage}/packages/include/zlib/" -DZLIB_LIBRARIES="${stage}/packages/lib/release/libz.a" -DZLIB_LIBRARY_DIRS="${stage}/packages/lib"
+                    -DZLIB_INCLUDE_DIRS="${stage}/packages/include/" -DZLIB_LIBRARIES="${stage}/packages/lib/libz.a" -DZLIB_LIBRARY_DIRS="${stage}/packages/lib"
 
                 cmake --build . --config Release
 
@@ -226,25 +225,8 @@ pushd "$MZ_SOURCE_DIR"
                     ctest -C Release
                 fi
 
-                cp -a libminizip*.a* "${stage}/lib/release/"
-                cp -a zip.h "$stage/include/minizip"
-                cp -a unzip.h "$stage/include/minizip"
+                cmake --install . --config Release
             popd
-
-            cp -a mz.h "$stage/include/minizip"
-            cp -a mz_os.h "$stage/include/minizip"
-            cp -a mz_crypt.h "$stage/include/minizip"
-            cp -a mz_strm.h "$stage/include/minizip"
-            cp -a mz_strm_buf.h "$stage/include/minizip"
-            cp -a mz_strm_mem.h "$stage/include/minizip"
-            cp -a mz_strm_split.h "$stage/include/minizip"
-            cp -a mz_strm_os.h "$stage/include/minizip"
-            cp -a mz_zip.h "$stage/include/minizip"
-            cp -a mz_zip_rw.h "$stage/include/minizip"
-            cp -a mz_strm_zlib.h "$stage/include/minizip"
-            cp -a mz_strm_pkcrypt.h "$stage/include/minizip"
-            cp -a mz_strm_wzaes.h "$stage/include/minizip"
-            cp -a mz_compat.h "$stage/include/minizip"
         ;;
     esac
     mkdir -p "$stage/LICENSES"
