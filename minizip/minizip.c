@@ -35,8 +35,6 @@ typedef struct minizip_opt_s {
     int32_t     encoding;
     uint8_t     verbose;
     uint8_t     aes;
-    const char *cert_path;
-    const char *cert_pwd;
 } minizip_opt;
 
 /***************************************************************************/
@@ -128,7 +126,7 @@ int32_t minizip_list(const char *path) {
     printf("      ------     -------- ----- ------   ------- ----     ----  ------     ----\n");
 
     /* Enumerate all entries in the archive */
-    do {
+    while (err == MZ_OK) {
         err = mz_zip_reader_entry_get_info(reader, &file_info);
 
         if (err != MZ_OK) {
@@ -165,7 +163,7 @@ int32_t minizip_list(const char *path) {
             printf("Error %" PRId32 " going to next entry in archive\n", err);
             break;
         }
-    } while (err == MZ_OK);
+    }
 
     mz_zip_reader_delete(&reader);
 
@@ -261,8 +259,6 @@ int32_t minizip_add(const char *path, const char *password, minizip_opt *options
     mz_zip_writer_set_progress_cb(writer, options, minizip_add_progress_cb);
     mz_zip_writer_set_entry_cb(writer, options, minizip_add_entry_cb);
     mz_zip_writer_set_zip_cd(writer, options->zip_cd);
-    if (options->cert_path)
-        mz_zip_writer_set_certificate(writer, options->cert_path, options->cert_pwd);
 
     err = mz_zip_writer_open_file(writer, path, options->disk_size, options->append);
 
