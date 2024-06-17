@@ -121,7 +121,6 @@
           </map>
           <key>manifest</key>
           <array>
-            <string>lib/debug/*.a*</string>
             <string>lib/release/*.a*</string>
 </array>
           <key>name</key>
@@ -144,7 +143,6 @@
           </map>
           <key>manifest</key>
           <array>
-            <string>lib/debug/*.a</string>
             <string>lib/release/*.a</string>
 </array>
           <key>name</key>
@@ -185,7 +183,7 @@
       <key>name</key>
       <string>minizip-ng</string>
       <key>canonical_repo</key>
-      <string>https://git.alchemyviewer.org/alchemy/thirdparty/3p-minizip-ng</string>
+      <string>https://github.com/AlchemyViewer/3p-minizip-ng</string>
       <key>description</key>
       <string>Fork of the popular zip manipulation library found in the zlib distribution.</string>
     </map>
