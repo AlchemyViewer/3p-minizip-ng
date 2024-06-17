@@ -53,8 +53,8 @@ pushd "$MZ_SOURCE_DIR"
             pushd "build_debug"
                 # Invoke cmake and use as official build
 
-                cmake -G "$AUTOBUILD_WIN_CMAKE_GEN" -A "$AUTOBUILD_WIN_VSPLATFORM" .. -DBUILD_SHARED_LIBS:BOOL=OFF \
-                    -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF \
+                cmake -G Ninja .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS:BOOL=OFF \
+                    -DMZ_ZLIB=ON -DMZ_ZLIB_OVERRIDE=ON -DMZ_FETCH_LIBS=OFF -DMZ_BUILD_UNIT_TESTS=ON \
                     -DZLIB_INCLUDE_DIRS="$(cygpath -m $stage)/packages/include/zlib/" -DZLIB_LIBRARIES="$(cygpath -m $stage)/packages/lib/debug/zlibd.lib" -DZLIB_LIBRARY_DIRS="$(cygpath -m $stage)/packages/lib"
 
                 cmake --build . --config Debug --clean-first
@@ -70,8 +70,8 @@ pushd "$MZ_SOURCE_DIR"
             mkdir -p "build_release"
             pushd "build_release"
                 # Invoke cmake and use as official build
-                cmake -G "$AUTOBUILD_WIN_CMAKE_GEN" -A "$AUTOBUILD_WIN_VSPLATFORM" .. -DBUILD_SHARED_LIBS:BOOL=OFF \
-                    -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF \
+                cmake -G Ninja .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS:BOOL=OFF \
+                    -DMZ_ZLIB=ON -DMZ_ZLIB_OVERRIDE=ON -DMZ_FETCH_LIBS=OFF -DMZ_BUILD_UNIT_TESTS=ON \
                     -DZLIB_INCLUDE_DIRS="$(cygpath -m $stage)/packages/include/zlib/" -DZLIB_LIBRARIES="$(cygpath -m $stage)/packages/lib/release/zlib.lib" -DZLIB_LIBRARY_DIRS="$(cygpath -m $stage)/packages/lib"
 
                 cmake --build . --config Release --clean-first
@@ -103,94 +103,30 @@ pushd "$MZ_SOURCE_DIR"
 
         # ------------------------- darwin, darwin64 -------------------------
         darwin*)
-            # Setup osx sdk platform
-            SDKNAME="macosx"
-            export SDKROOT=$(xcodebuild -version -sdk ${SDKNAME} Path)
-
-            # Deploy Targets
-            X86_DEPLOY=10.15
-            ARM64_DEPLOY=11.0
-
             # Setup build flags
-            ARCH_FLAGS_X86="-arch x86_64 -mmacosx-version-min=${X86_DEPLOY} -isysroot ${SDKROOT} -msse4.2"
-            ARCH_FLAGS_ARM64="-arch arm64 -mmacosx-version-min=${ARM64_DEPLOY} -isysroot ${SDKROOT}"
-            DEBUG_COMMON_FLAGS="-O0 -g -fPIC -DPIC"
-            RELEASE_COMMON_FLAGS="-O3 -g -fPIC -DPIC -fstack-protector-strong"
-            DEBUG_CFLAGS="$DEBUG_COMMON_FLAGS"
-            RELEASE_CFLAGS="$RELEASE_COMMON_FLAGS"
-            DEBUG_CXXFLAGS="$DEBUG_COMMON_FLAGS -std=c++17"
-            RELEASE_CXXFLAGS="$RELEASE_COMMON_FLAGS -std=c++17"
-            DEBUG_CPPFLAGS="-DPIC"
-            RELEASE_CPPFLAGS="-DPIC"
-            DEBUG_LDFLAGS="-Wl,-headerpad_max_install_names"
-            RELEASE_LDFLAGS="-Wl,-headerpad_max_install_names"
+            C_OPTS_X86="-arch x86_64 $LL_BUILD_RELEASE_CFLAGS"
+            C_OPTS_ARM64="-arch arm64 $LL_BUILD_RELEASE_CFLAGS"
+            CXX_OPTS_X86="-arch x86_64 $LL_BUILD_RELEASE_CXXFLAGS"
+            CXX_OPTS_ARM64="-arch arm64 $LL_BUILD_RELEASE_CXXFLAGS"
+            LINK_OPTS_X86="-arch x86_64 $LL_BUILD_RELEASE_LINKER"
+            LINK_OPTS_ARM64="-arch arm64 $LL_BUILD_RELEASE_LINKER"
 
-            # x86 Deploy Target
-            export MACOSX_DEPLOYMENT_TARGET=${X86_DEPLOY}
-
-            mkdir -p "build_debug_x86"
-            pushd "build_debug_x86"
-                CFLAGS="$ARCH_FLAGS_X86 $DEBUG_CFLAGS" \
-                CXXFLAGS="$ARCH_FLAGS_X86 $DEBUG_CXXFLAGS" \
-                CPPFLAGS="$DEBUG_CPPFLAGS" \
-                LDFLAGS="$ARCH_FLAGS_X86 $DEBUG_LDFLAGS" \
-                cmake .. -GXcode -DBUILD_SHARED_LIBS:BOOL=OFF \
-                    -DCMAKE_C_FLAGS="$ARCH_FLAGS_X86 $DEBUG_CFLAGS" \
-                    -DCMAKE_CXX_FLAGS="$ARCH_FLAGS_X86 $DEBUG_CXXFLAGS" \
-                    -DCMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL="0" \
-                    -DCMAKE_XCODE_ATTRIBUTE_GCC_FAST_MATH=NO \
-                    -DCMAKE_XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS=YES \
-                    -DCMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT=dwarf \
-                    -DCMAKE_XCODE_ATTRIBUTE_LLVM_LTO=NO \
-                    -DCMAKE_XCODE_ATTRIBUTE_CLANG_X86_VECTOR_INSTRUCTIONS=sse4.2 \
-                    -DCMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD="c++17" \
-                    -DCMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY="libc++" \
-                    -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED="NO" \
-                    -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED="NO" \
-                    -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY="" \
-                    -DCMAKE_OSX_ARCHITECTURES:STRING=x86_64 \
-                    -DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} \
-                    -DCMAKE_OSX_SYSROOT=${SDKROOT} \
-                    -DCMAKE_MACOSX_RPATH=YES \
-                    -DCMAKE_INSTALL_PREFIX="$stage/debug_x86" \
-                    -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF \
-                    -DZLIB_INCLUDE_DIRS="${stage}/packages/include/zlib/" -DZLIB_LIBRARIES="${stage}/packages/lib/debug/libz.a" -DZLIB_LIBRARY_DIRS="${stage}/packages/lib"
-
-                cmake --build . --config Debug
-                cmake --install . --config Debug
-
-                # conditionally run unit tests
-                if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
-                    ctest -C Debug || true
-                fi
-            popd
+            # deploy target
+            export MACOSX_DEPLOYMENT_TARGET=${LL_BUILD_DARWIN_BASE_DEPLOY_TARGET}
 
             mkdir -p "build_release_x86"
             pushd "build_release_x86"
-                CFLAGS="$ARCH_FLAGS_X86 $RELEASE_CFLAGS" \
-                CXXFLAGS="$ARCH_FLAGS_X86 $RELEASE_CXXFLAGS" \
-                CPPFLAGS="$RELEASE_CPPFLAGS" \
-                LDFLAGS="$ARCH_FLAGS_X86 $RELEASE_LDFLAGS" \
-                cmake .. -GXcode -DBUILD_SHARED_LIBS:BOOL=OFF \
-                    -DCMAKE_C_FLAGS="$ARCH_FLAGS_X86 $RELEASE_CFLAGS" \
-                    -DCMAKE_CXX_FLAGS="$ARCH_FLAGS_X86 $RELEASE_CXXFLAGS" \
-                    -DCMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL="3" \
-                    -DCMAKE_XCODE_ATTRIBUTE_GCC_FAST_MATH=NO \
-                    -DCMAKE_XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS=YES \
-                    -DCMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT=dwarf \
-                    -DCMAKE_XCODE_ATTRIBUTE_LLVM_LTO=NO \
-                    -DCMAKE_XCODE_ATTRIBUTE_CLANG_X86_VECTOR_INSTRUCTIONS=sse4.2 \
-                    -DCMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD="c++17" \
-                    -DCMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY="libc++" \
-                    -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED="NO" \
-                    -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED="NO" \
-                    -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY="" \
+                CFLAGS="$C_OPTS_X86" \
+                CXXFLAGS="$CXX_OPTS_X86" \
+                LDFLAGS="$LINK_OPTS_X86" \
+                cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS:BOOL=OFF \
+                    -DCMAKE_C_FLAGS="$C_OPTS_X86" \
+                    -DCMAKE_CXX_FLAGS="$CXX_OPTS_X86" \
                     -DCMAKE_OSX_ARCHITECTURES:STRING=x86_64 \
                     -DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} \
-                    -DCMAKE_OSX_SYSROOT=${SDKROOT} \
                     -DCMAKE_MACOSX_RPATH=YES \
                     -DCMAKE_INSTALL_PREFIX="$stage/release_x86" \
-                    -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF \
+                    -DMZ_LIBCOMP=OFF -DMZ_ZLIB=ON -DMZ_ZLIB_OVERRIDE=ON -DMZ_FETCH_LIBS=OFF -DMZ_BUILD_UNIT_TESTS=ON \
                     -DZLIB_INCLUDE_DIRS="${stage}/packages/include/zlib/" -DZLIB_LIBRARIES="${stage}/packages/lib/release/libz.a" -DZLIB_LIBRARY_DIRS="${stage}/packages/lib"
 
                 cmake --build . --config Release
@@ -202,70 +138,19 @@ pushd "$MZ_SOURCE_DIR"
                 fi
             popd
 
-            # ARM64 Deploy Target
-            export MACOSX_DEPLOYMENT_TARGET=${ARM64_DEPLOY}
-
-            mkdir -p "build_debug_arm64"
-            pushd "build_debug_arm64"
-                CFLAGS="$ARCH_FLAGS_ARM64 $DEBUG_CFLAGS" \
-                CXXFLAGS="$ARCH_FLAGS_ARM64 $DEBUG_CXXFLAGS" \
-                CPPFLAGS="$DEBUG_CPPFLAGS" \
-                LDFLAGS="$ARCH_FLAGS_ARM64 $DEBUG_LDFLAGS" \
-                cmake .. -GXcode -DBUILD_SHARED_LIBS:BOOL=OFF \
-                    -DCMAKE_C_FLAGS="$ARCH_FLAGS_ARM64 $DEBUG_CFLAGS" \
-                    -DCMAKE_CXX_FLAGS="$ARCH_FLAGS_ARM64 $DEBUG_CXXFLAGS" \
-                    -DCMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL="0" \
-                    -DCMAKE_XCODE_ATTRIBUTE_GCC_FAST_MATH=NO \
-                    -DCMAKE_XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS=YES \
-                    -DCMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT=dwarf \
-                    -DCMAKE_XCODE_ATTRIBUTE_LLVM_LTO=NO \
-                    -DCMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD="c++17" \
-                    -DCMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY="libc++" \
-                    -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED="NO" \
-                    -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED="NO" \
-                    -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY="" \
-                    -DCMAKE_OSX_ARCHITECTURES:STRING=arm64 \
-                    -DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} \
-                    -DCMAKE_OSX_SYSROOT=${SDKROOT} \
-                    -DCMAKE_MACOSX_RPATH=YES \
-                    -DCMAKE_INSTALL_PREFIX="$stage/debug_arm64" \
-                    -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF \
-                    -DZLIB_INCLUDE_DIRS="${stage}/packages/include/zlib/" -DZLIB_LIBRARIES="${stage}/packages/lib/debug/libz.a" -DZLIB_LIBRARY_DIRS="${stage}/packages/lib"
-
-                cmake --build . --config Debug
-                cmake --install . --config Debug
-
-                # conditionally run unit tests
-                if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
-                    ctest -C Debug || true
-                fi
-            popd
-
             mkdir -p "build_release_arm64"
             pushd "build_release_arm64"
-                CFLAGS="$ARCH_FLAGS_ARM64 $RELEASE_CFLAGS" \
-                CXXFLAGS="$ARCH_FLAGS_ARM64 $RELEASE_CXXFLAGS" \
-                CPPFLAGS="$RELEASE_CPPFLAGS" \
-                LDFLAGS="$ARCH_FLAGS_ARM64 $RELEASE_LDFLAGS" \
-                cmake .. -GXcode -DBUILD_SHARED_LIBS:BOOL=OFF \
-                    -DCMAKE_C_FLAGS="$ARCH_FLAGS_ARM64 $RELEASE_CFLAGS" \
-                    -DCMAKE_CXX_FLAGS="$ARCH_FLAGS_ARM64 $RELEASE_CXXFLAGS" \
-                    -DCMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL="3" \
-                    -DCMAKE_XCODE_ATTRIBUTE_GCC_FAST_MATH=NO \
-                    -DCMAKE_XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS=YES \
-                    -DCMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT=dwarf \
-                    -DCMAKE_XCODE_ATTRIBUTE_LLVM_LTO=NO \
-                    -DCMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD="c++17" \
-                    -DCMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY="libc++" \
-                    -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED="NO" \
-                    -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED="NO" \
-                    -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY="" \
+                CFLAGS="$C_OPTS_ARM64" \
+                CXXFLAGS="$CXX_OPTS_ARM64" \
+                LDFLAGS="$LINK_OPTS_ARM64" \
+                cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS:BOOL=OFF \
+                    -DCMAKE_C_FLAGS="$C_OPTS_ARM64" \
+                    -DCMAKE_CXX_FLAGS="$CXX_OPTS_ARM64" \
                     -DCMAKE_OSX_ARCHITECTURES:STRING=arm64 \
                     -DCMAKE_OSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} \
-                    -DCMAKE_OSX_SYSROOT=${SDKROOT} \
                     -DCMAKE_MACOSX_RPATH=YES \
                     -DCMAKE_INSTALL_PREFIX="$stage/release_arm64" \
-                    -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF \
+                    -DMZ_LIBCOMP=OFF -DMZ_ZLIB=ON -DMZ_ZLIB_OVERRIDE=ON -DMZ_FETCH_LIBS=OFF -DMZ_BUILD_UNIT_TESTS=ON \
                     -DZLIB_INCLUDE_DIRS="${stage}/packages/include/zlib/" -DZLIB_LIBRARIES="${stage}/packages/lib/release/libz.a" -DZLIB_LIBRARY_DIRS="${stage}/packages/lib"
 
                 cmake --build . --config Release
@@ -279,11 +164,9 @@ pushd "$MZ_SOURCE_DIR"
 
             # prepare staging dirs
             mkdir -p "$stage/include/minizip"
-            mkdir -p "$stage/lib/debug"
             mkdir -p "$stage/lib/release"
 
             # create fat libraries
-            lipo -create ${stage}/debug_x86/lib/libminizip.a ${stage}/debug_arm64/lib/libminizip.a -output ${stage}/lib/debug/libminizip.a
             lipo -create ${stage}/release_x86/lib/libminizip.a ${stage}/release_arm64/lib/libminizip.a -output ${stage}/lib/release/libminizip.a
 
             # copy headers
@@ -292,18 +175,24 @@ pushd "$MZ_SOURCE_DIR"
 
         # -------------------------- linux, linux64 --------------------------
         linux*)
-            unset DISTCC_HOSTS CC CXX CFLAGS CPPFLAGS CXXFLAGS
+            # Linux build environment at Linden comes pre-polluted with stuff that can
+            # seriously damage 3rd-party builds.  Environmental garbage you can expect
+            # includes:
+            #
+            #    DISTCC_POTENTIAL_HOSTS     arch           root        CXXFLAGS
+            #    DISTCC_LOCATION            top            branch      CC
+            #    DISTCC_HOSTS               build_name     suffix      CXX
+            #    LSDISTCC_ARGS              repo           prefix      CFLAGS
+            #    cxx_version                AUTOBUILD      SIGN        CPPFLAGS
+            #
+            # So, clear out bits that shouldn't affect our configure-directed build
+            # but which do nonetheless.
+            #
+            unset DISTCC_HOSTS CFLAGS CPPFLAGS CXXFLAGS
 
-            # Default target per autobuild build --address-size
-            opts="${TARGET_OPTS:--m$AUTOBUILD_ADDRSIZE}"
-            DEBUG_COMMON_FLAGS="$opts -Og -g -fPIC -DPIC"
-            RELEASE_COMMON_FLAGS="$opts -O3 -g -fPIC -DPIC -fstack-protector-strong -D_FORTIFY_SOURCE=2"
-            DEBUG_CFLAGS="$DEBUG_COMMON_FLAGS"
-            RELEASE_CFLAGS="$RELEASE_COMMON_FLAGS"
-            DEBUG_CXXFLAGS="$DEBUG_COMMON_FLAGS -std=c++17"
-            RELEASE_CXXFLAGS="$RELEASE_COMMON_FLAGS -std=c++17"
-            DEBUG_CPPFLAGS="-DPIC"
-            RELEASE_CPPFLAGS="-DPIC"
+            # Default target per --address-size
+            opts_c="${TARGET_OPTS:--m$AUTOBUILD_ADDRSIZE $LL_BUILD_RELEASE_CFLAGS}"
+            opts_cxx="${TARGET_OPTS:--m$AUTOBUILD_ADDRSIZE $LL_BUILD_RELEASE_CXXFLAGS}"
 
             # Handle any deliberate platform targeting
             if [ -z "${TARGET_CPPFLAGS:-}" ]; then
@@ -315,43 +204,19 @@ pushd "$MZ_SOURCE_DIR"
             fi
 
             mkdir -p "$stage/include/minizip"
-            mkdir -p "$stage/lib/debug"
             mkdir -p "$stage/lib/release"
-
-            mkdir -p "build_debug"
-            pushd "build_debug"
-                # Debug first
-                CFLAGS="$DEBUG_CFLAGS" \
-                CXXFLAGS="$DEBUG_CXXFLAGS" \
-                CPPFLAGS="$DEBUG_CPPFLAGS" \
-                cmake .. -G"Unix Makefiles" -DBUILD_SHARED_LIBS:BOOL=OFF \
-                    -DCMAKE_C_FLAGS="$DEBUG_CFLAGS" \
-                    -DCMAKE_CXX_FLAGS="$DEBUG_CXXFLAGS" \
-                    -DCMAKE_INSTALL_PREFIX=$stage \
-                    -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF \
-                    -DZLIB_INCLUDE_DIRS="${stage}/packages/include/zlib/" -DZLIB_LIBRARIES="${stage}/packages/lib/debug/libz.a" -DZLIB_LIBRARY_DIRS="${stage}/packages/lib"
-
-                cmake --build . --config Debug
-
-                # conditionally run unit tests
-                if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
-                    ctest -C Debug
-                fi
-
-                cp -a libminizip*.a* "${stage}/lib/debug/"
-            popd
 
             mkdir -p "build_release"
             pushd "build_release"
                 # Release last
-                CFLAGS="$RELEASE_CFLAGS" \
-                CXXFLAGS="$RELEASE_CXXFLAGS" \
-                CPPFLAGS="$RELEASE_CPPFLAGS" \
-                cmake .. -G"Unix Makefiles" -DBUILD_SHARED_LIBS:BOOL=OFF \
-                    -DCMAKE_C_FLAGS="$RELEASE_CFLAGS" \
-                    -DCMAKE_CXX_FLAGS="$RELEASE_CXXFLAGS" \
+                CFLAGS="$opts_c" \
+                CXXFLAGS="$opts_cxx" \
+                cmake .. -G Ninja -DBUILD_SHARED_LIBS:BOOL=OFF \
+                    -DCMAKE_BUILD_TYPE=Release \
+                    -DCMAKE_C_FLAGS="$opts_c" \
+                    -DCMAKE_CXX_FLAGS="$opts_cxx" \
                     -DCMAKE_INSTALL_PREFIX=$stage \
-                    -DMZ_SIGNING=OFF -DMZ_LIBCOMP=OFF -DMZ_ZIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF \
+                    -DMZ_ZLIB=ON -DMZ_ZLIB_OVERRIDE=ON -DZLIB_COMPAT=ON -DMZ_FETCH_LIBS=OFF -DMZ_BUILD_UNIT_TESTS=ON \
                     -DZLIB_INCLUDE_DIRS="${stage}/packages/include/zlib/" -DZLIB_LIBRARIES="${stage}/packages/lib/release/libz.a" -DZLIB_LIBRARY_DIRS="${stage}/packages/lib"
 
                 cmake --build . --config Release
