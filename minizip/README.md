@@ -6,6 +6,7 @@ minizip-ng is a zip manipulation library written in C that is supported on Windo
 [![Fuzzing Status](https://oss-fuzz-build-logs.storage.googleapis.com/badges/minizip.svg)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=1&q=proj:minizip)
 [![License: Zlib](https://img.shields.io/badge/license-zlib-lightgrey.svg)](https://github.com/zlib-ng/minizip-ng/blob/master/LICENSE)
 [![codecov.io](https://codecov.io/github/zlib-ng/minizip-ng/coverage.svg?branch=develop)](https://codecov.io/github/zlib-ng/minizip-ng/)
+[![Packaging status](https://repology.org/badge/tiny-repos/minizip-ng.svg)](https://repology.org/project/minizip-ng/versions)
 
 Developed and maintained by Nathan Moinvaziri.
 
@@ -13,8 +14,8 @@ Developed and maintained by Nathan Moinvaziri.
 
 | Name                                                          | Description                                                                                                                                                             |
 |:--------------------------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [master](https://github.com/zlib-ng/minizip-ng/tree/master)   | Most recent release.                                                                                                                                                    |
 | [develop](https://github.com/zlib-ng/minizip-ng/tree/develop) | Latest development code.                                                                                                                                                |
+| [master](https://github.com/zlib-ng/minizip-ng/tree/master)   | Most recent stable release.                                                                                                                                             |
 | [1.2](https://github.com/zlib-ng/minizip-ng/tree/1.2)         | Old changes to original minizip that includes WinZip AES encryption, disk splitting, I/O buffering and some additional fixes. Not ABI compatible with original minizip. |
 | [1.1](https://github.com/zlib-ng/minizip-ng/tree/1.1)         | Original minizip as of zlib 1.2.11.                                                                                                                                     |
 
