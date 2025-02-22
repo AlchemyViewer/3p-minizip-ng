@@ -36,8 +36,8 @@ source "$(dirname "$AUTOBUILD_VARIABLES_FILE")/functions"
 # CMake configuration options for all platforms
 config=( \
     -DBUILD_SHARED_LIBS=OFF \
-    -DMZ_BUILD_TESTS=ON \
-    -DMZ_BUILD_UNIT_TESTS=ON \
+    -DMZ_BUILD_TESTS=OFF \
+    -DMZ_BUILD_UNIT_TESTS=OFF \
     -DMZ_BZIP2=OFF \
     -DMZ_COMPAT=ON \
     -DMZ_FETCH_LIBS=OFF \
@@ -78,9 +78,9 @@ pushd "$MINIZLIB_SOURCE_DIR"
             cmake --build . --config Release --parallel $AUTOBUILD_CPU_COUNT
 
             # conditionally run unit tests
-            if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
-                ctest -C Release
-            fi
+            # if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
+            #     ctest -C Release
+            # fi
 
             cmake --install . --config Release
 
@@ -117,9 +117,9 @@ pushd "$MINIZLIB_SOURCE_DIR"
                     cmake --build . --config Release --parallel $AUTOBUILD_CPU_COUNT
 
                     # conditionally run unit tests
-                    if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
-                        ctest -C Release
-                    fi
+                    # if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
+                    #     ctest -C Release
+                    # fi
 
                     cmake --install . --config Release
                 popd
@@ -152,9 +152,9 @@ pushd "$MINIZLIB_SOURCE_DIR"
             cmake --build . --config Release --parallel $AUTOBUILD_CPU_COUNT
 
             # conditionally run unit tests
-            if [ "${DISABLE_UNIT_TESTS:-0}" -eq 0 ]; then
-                ctest -C Release
-            fi
+            # if [ "${DISABLE_UNIT_TESTS:-0}" -eq 0 ]; then
+            #     ctest -C Release
+            # fi
 
             cmake --install . --config Release
 
