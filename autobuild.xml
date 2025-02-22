@@ -1,21 +1,14 @@
 <?xml version="1.0" ?>
-<llsd><map>
+<llsd>
+<map>
+    <key>version</key>
+    <string>1.3</string>
+    <key>type</key>
+    <string>autobuild</string>
     <key>installables</key>
     <map>
       <key>zlib-ng</key>
       <map>
-        <key>canonical_repo</key>
-        <string>https://bitbucket.org/lindenlab/3p-zlib-ng</string>
-        <key>copyright</key>
-        <string>Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler</string>
-        <key>description</key>
-        <string>zlib data compression library for the next generation systems</string>
-        <key>license</key>
-        <string>zlib-ng</string>
-        <key>license_file</key>
-        <string>LICENSES/zlib-ng.txt</string>
-        <key>name</key>
-        <string>zlib-ng</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -23,11 +16,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e363e3b889c52fda7601d7aeaa9832307034651e</string>
+              <string>0df159b4a9c28baaee19bd0d3d81969ea2be772d690b4517e4bafc04bc85a67eb5ca181d03c01650d95dd61b404e86b341d7891596de203f25427875eaea3c32</string>
               <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>blake2b</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-zlib-ng/releases/download/v2.2.3-r1/zlib_ng-2.2.3-dev0.g8aa13e3.d20250206-darwin64-13183604450.tar.zst</string>
+              <string>https://github.com/AlchemyViewer/3p-zlib-ng/releases/download/v2.2.4-r1/zlib_ng-2.2.4.13473771311-darwin64-13473771311.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -37,83 +30,65 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3cdd52f7fb3691789d50f0b40ed6f5642321ff32</string>
+              <string>7f6dc45f875d247ef69c2dc1313b85e00c829a61bb29ee058defda433ebdb943d641af0b2a97aeab05b9de28d5593382d95cb2b08ecefc8d61cd134ecc59638e</string>
               <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>blake2b</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-zlib-ng/releases/download/v2.2.3-r1/zlib_ng-2.2.3-dev0.g8aa13e3.d20250206-linux64-13183604450.tar.zst</string>
+              <string>https://github.com/AlchemyViewer/3p-zlib-ng/releases/download/v2.2.4-r1/zlib_ng-2.2.4.13473771311-linux64-13473771311.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>2b5a50b0a3d31a07bc74cb77871ad195eb97c550</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-zlib-ng/releases/download/v1.2.11.zlib-ng.32fd361/zlib_ng-1.2.11.zlib-ng.32fd361-windows-32fd361.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
           </map>
           <key>windows64</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e802a28139328bb2421ad39e13d996d350d8106d</string>
+              <string>e5a937189f6d28b54b37884f1a33d7a899aa9e1d6108f2b2ad306b23a9e90014029baa805d72b79dd04f28c9972da6f5f0e368bf38b66fa325108dc11c0ee955</string>
               <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>blake2b</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-zlib-ng/releases/download/v2.2.3-r1/zlib_ng-2.2.3-dev0.g8aa13e3.d20250206-windows64-13183604450.tar.zst</string>
+              <string>https://github.com/AlchemyViewer/3p-zlib-ng/releases/download/v2.2.4-r1/zlib_ng-2.2.4.13473771311-windows64-13473771311.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>zlib-ng</string>
+        <key>license_file</key>
+        <string>LICENSES/zlib-ng.txt</string>
+        <key>copyright</key>
+        <string>Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler</string>
         <key>version</key>
-        <string>2.2.3-dev0.g8aa13e3.d20250206</string>
+        <string>2.2.4.13473771311</string>
+        <key>name</key>
+        <string>zlib-ng</string>
+        <key>canonical_repo</key>
+        <string>https://bitbucket.org/lindenlab/3p-zlib-ng</string>
+        <key>description</key>
+        <string>zlib data compression library for the next generation systems</string>
       </map>
     </map>
     <key>package_description</key>
     <map>
-      <key>canonical_repo</key>
-      <string>https://github.com/secondlife/3p-minizip-ng</string>
-      <key>copyright</key>
-      <string>This project uses the zlib license. Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler</string>
-      <key>description</key>
-      <string>minizip-ng is a zip manipulation library. Based on work of Gilles Vollant.</string>
-      <key>license</key>
-      <string>minizip-ng</string>
-      <key>license_file</key>
-      <string>LICENSES/minizip-ng.txt</string>
-      <key>name</key>
-      <string>minizip-ng</string>
-      <key>use_scm_version</key>
-      <boolean>true</boolean>
       <key>platforms</key>
       <map>
         <key>common</key>
         <map>
-          <key>build_directory</key>
-          <string>stage</string>
           <key>configurations</key>
           <map>
             <key>default</key>
             <map>
               <key>build</key>
               <map>
+                <key>command</key>
+                <string>bash</string>
                 <key>arguments</key>
                 <array>
                   <string>-c</string>
                   <string>../build-cmd.sh</string>
                 </array>
-                <key>command</key>
-                <string>bash</string>
               </map>
               <key>name</key>
               <string>default</string>
@@ -125,6 +100,8 @@
             <string>LICENSES/minizip-ng.txt</string>
             <string>docs/minizip-ng/README.Linden</string>
           </array>
+          <key>build_directory</key>
+          <string>stage</string>
           <key>name</key>
           <string>common</string>
         </map>
@@ -195,9 +172,20 @@
           <string>windows</string>
         </map>
       </map>
+      <key>license</key>
+      <string>minizip-ng</string>
+      <key>license_file</key>
+      <string>LICENSES/minizip-ng.txt</string>
+      <key>copyright</key>
+      <string>This project uses the zlib license. Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler</string>
+      <key>use_scm_version</key>
+      <boolean>true</boolean>
+      <key>name</key>
+      <string>minizip-ng</string>
+      <key>canonical_repo</key>
+      <string>https://github.com/AlchemyViewer/3p-minizip-ng</string>
+      <key>description</key>
+      <string>minizip-ng is a zip manipulation library. Based on work of Gilles Vollant.</string>
     </map>
-    <key>type</key>
-    <string>autobuild</string>
-    <key>version</key>
-    <string>1.3</string>
-  </map></llsd>
+  </map>
+</llsd>
