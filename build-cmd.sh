@@ -65,8 +65,10 @@ pushd "$MINIZLIB_SOURCE_DIR"
             mkdir -p "build"
             pushd "build"
             cmake $(cygpath -m ${top}/${MINIZLIB_SOURCE_DIR}) -G "Ninja Multi-Config" \
+                  -DCMAKE_BUILD_TYPE="Release" \
                   -DCMAKE_C_FLAGS:STRING="$plainopts" \
                   -DCMAKE_CXX_FLAGS:STRING="$opts" \
+                  -DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT="Embedded" \
                   "${config[@]}" \
                   -DCMAKE_INSTALL_PREFIX=$(cygpath -m $stage) \
                   -DCMAKE_INSTALL_LIBDIR="$(cygpath -m "$stage/lib/release")" \
