@@ -30,8 +30,10 @@ source_environment_tempfile="$stage/source_environment.sh"
 "$autobuild" source_environment > "$source_environment_tempfile"
 . "$source_environment_tempfile"
 
-# remove_cxxstd
+# remove_cxxstd apply_patch
 source "$(dirname "$AUTOBUILD_VARIABLES_FILE")/functions"
+
+apply_patch "$top/patches/update-cmake-version-compat.patch" "$MINIZLIB_SOURCE_DIR"
 
 # CMake configuration options for all platforms
 config=( \
@@ -64,8 +66,8 @@ pushd "$MINIZLIB_SOURCE_DIR"
                 opts="$(replace_switch /Zi /Z7 $LL_BUILD_DEBUG)"
                 plainopts="$(remove_switch /GR $(remove_cxxstd $opts))"
 
-                cmake $(cygpath -m ${top}/${MINIZLIB_SOURCE_DIR}) -G "Ninja Multi-Config" \
-                    -DCMAKE_BUILD_TYPE="Debug" \
+                cmake $(cygpath -m ${top}/${MINIZLIB_SOURCE_DIR}) -G "$AUTOBUILD_WIN_CMAKE_GEN" -A "$AUTOBUILD_WIN_VSPLATFORM" \
+                    -DCMAKE_CONFIGURATION_TYPES="Debug" \
                     -DCMAKE_C_FLAGS:STRING="$plainopts" \
                     -DCMAKE_CXX_FLAGS:STRING="$opts" \
                     -DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT="Embedded" \
@@ -90,8 +92,8 @@ pushd "$MINIZLIB_SOURCE_DIR"
                 opts="$(replace_switch /Zi /Z7 $LL_BUILD_RELEASE)"
                 plainopts="$(remove_switch /GR $(remove_cxxstd $opts))"
 
-                cmake $(cygpath -m ${top}/${MINIZLIB_SOURCE_DIR}) -G "Ninja Multi-Config" \
-                    -DCMAKE_BUILD_TYPE="Release" \
+                cmake $(cygpath -m ${top}/${MINIZLIB_SOURCE_DIR}) -G "$AUTOBUILD_WIN_CMAKE_GEN" -A "$AUTOBUILD_WIN_VSPLATFORM" \
+                    -DCMAKE_CONFIGURATION_TYPES="Release" \
                     -DCMAKE_C_FLAGS:STRING="$plainopts" \
                     -DCMAKE_CXX_FLAGS:STRING="$opts" \
                     -DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT="Embedded" \
@@ -129,7 +131,8 @@ pushd "$MINIZLIB_SOURCE_DIR"
                 pushd "build_$arch"
                     CFLAGS="$cc_opts" \
                     LDFLAGS="$ld_opts" \
-                    cmake ${top}/${MINIZLIB_SOURCE_DIR} -G "Ninja Multi-Config" \
+                    cmake ${top}/${MINIZLIB_SOURCE_DIR} -G "Xcode" \
+                        -DCMAKE_CONFIGURATION_TYPES="Release" \
                         -DCMAKE_C_FLAGS:STRING="$cc_opts" \
                         -DCMAKE_CXX_FLAGS:STRING="$opts" \
                         "${config[@]}" \
