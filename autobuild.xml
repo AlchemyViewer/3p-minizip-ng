@@ -166,6 +166,7 @@
           </map>
           <key>manifest</key>
           <array>
+            <string>lib/debug/minizip.lib</string>
             <string>lib/release/minizip.lib</string>
           </array>
           <key>name</key>

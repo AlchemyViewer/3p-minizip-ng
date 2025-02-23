@@ -59,34 +59,60 @@ pushd "$MINIZLIB_SOURCE_DIR"
         windows*)
             load_vsvars
 
-            opts="$(replace_switch /Zi /Z7 $LL_BUILD_RELEASE)"
-            plainopts="$(remove_switch /GR $(remove_cxxstd $opts))"
+            mkdir -p "build_debug"
+            pushd "build_debug"
+                opts="$(replace_switch /Zi /Z7 $LL_BUILD_DEBUG)"
+                plainopts="$(remove_switch /GR $(remove_cxxstd $opts))"
 
-            mkdir -p "build"
-            pushd "build"
-            cmake $(cygpath -m ${top}/${MINIZLIB_SOURCE_DIR}) -G "Ninja Multi-Config" \
-                  -DCMAKE_BUILD_TYPE="Release" \
-                  -DCMAKE_C_FLAGS:STRING="$plainopts" \
-                  -DCMAKE_CXX_FLAGS:STRING="$opts" \
-                  -DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT="Embedded" \
-                  "${config[@]}" \
-                  -DCMAKE_INSTALL_PREFIX=$(cygpath -m $stage) \
-                  -DCMAKE_INSTALL_LIBDIR="$(cygpath -m "$stage/lib/release")" \
-                  -DZLIB_INCLUDE_DIR="$(cygpath -m "$stage/packages/include/zlib-ng/")" \
-                  -DZLIB_LIBRARY="$(cygpath -m "$stage/packages/lib/release/zlib.lib")"
+                cmake $(cygpath -m ${top}/${MINIZLIB_SOURCE_DIR}) -G "Ninja Multi-Config" \
+                    -DCMAKE_BUILD_TYPE="Debug" \
+                    -DCMAKE_C_FLAGS:STRING="$plainopts" \
+                    -DCMAKE_CXX_FLAGS:STRING="$opts" \
+                    -DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT="Embedded" \
+                    "${config[@]}" \
+                    -DCMAKE_INSTALL_PREFIX=$(cygpath -m $stage) \
+                    -DCMAKE_INSTALL_LIBDIR="$(cygpath -m "$stage/lib/debug")" \
+                    -DZLIB_INCLUDE_DIR="$(cygpath -m "$stage/packages/include/zlib-ng/")" \
+                    -DZLIB_LIBRARY="$(cygpath -m "$stage/packages/lib/debug/zlibd.lib")"
 
-            cmake --build . --config Release --parallel $AUTOBUILD_CPU_COUNT
+                cmake --build . --config Debug --parallel $AUTOBUILD_CPU_COUNT
 
-            # conditionally run unit tests
-            # if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
-            #     ctest -C Release
-            # fi
+                # conditionally run unit tests
+                # if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
+                #     ctest -C Debug
+                # fi
 
-            cmake --install . --config Release
+                cmake --install . --config Debug
+            popd
+
+            mkdir -p "build_release"
+            pushd "build_release"
+                opts="$(replace_switch /Zi /Z7 $LL_BUILD_RELEASE)"
+                plainopts="$(remove_switch /GR $(remove_cxxstd $opts))"
+
+                cmake $(cygpath -m ${top}/${MINIZLIB_SOURCE_DIR}) -G "Ninja Multi-Config" \
+                    -DCMAKE_BUILD_TYPE="Release" \
+                    -DCMAKE_C_FLAGS:STRING="$plainopts" \
+                    -DCMAKE_CXX_FLAGS:STRING="$opts" \
+                    -DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT="Embedded" \
+                    "${config[@]}" \
+                    -DCMAKE_INSTALL_PREFIX=$(cygpath -m $stage) \
+                    -DCMAKE_INSTALL_LIBDIR="$(cygpath -m "$stage/lib/release")" \
+                    -DZLIB_INCLUDE_DIR="$(cygpath -m "$stage/packages/include/zlib-ng/")" \
+                    -DZLIB_LIBRARY="$(cygpath -m "$stage/packages/lib/release/zlib.lib")"
+
+                cmake --build . --config Release --parallel $AUTOBUILD_CPU_COUNT
+
+                # conditionally run unit tests
+                # if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
+                #     ctest -C Release
+                # fi
+
+                cmake --install . --config Release
+            popd
 
             mkdir -p $stage/include/minizip-ng
             mv $stage/include/minizip/*.h "$stage/include/minizip-ng/"
-            popd
         ;;
 
         # ------------------------- darwin, darwin64 -------------------------
