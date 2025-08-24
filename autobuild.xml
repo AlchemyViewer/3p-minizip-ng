@@ -166,8 +166,12 @@
           </map>
           <key>manifest</key>
           <array>
-            <string>lib/debug/minizip.lib</string>
-            <string>lib/release/minizip.lib</string>
+            <string>lib/sse/debug/minizip.lib</string>
+            <string>lib/sse/release/minizip.lib</string>
+            <string>lib/avx2/debug/minizip.lib</string>
+            <string>lib/avx2/release/minizip.lib</string>
+            <string>lib/arm64/debug/minizip.lib</string>
+            <string>lib/arm64/release/minizip.lib</string>
           </array>
           <key>name</key>
           <string>windows</string>
