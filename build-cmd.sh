@@ -61,57 +61,74 @@ pushd "$MINIZLIB_SOURCE_DIR"
         windows*)
             load_vsvars
 
-            mkdir -p "build_debug"
-            pushd "build_debug"
-                opts="$(replace_switch /Zi /Z7 $LL_BUILD_DEBUG)"
-                plainopts="$(remove_switch /GR $(remove_cxxstd $opts))"
+            for arch in sse avx2 arm64 ; do
+                platform_target="x64"
+                if [[ "$arch" == "arm64" ]]; then
+                    platform_target="ARM64"
+                fi
 
-                cmake $(cygpath -m ${top}/${MINIZLIB_SOURCE_DIR}) -G "$AUTOBUILD_WIN_CMAKE_GEN" -A "$AUTOBUILD_WIN_VSPLATFORM" \
-                    -DCMAKE_CONFIGURATION_TYPES="Debug" \
-                    -DCMAKE_C_FLAGS:STRING="$plainopts" \
-                    -DCMAKE_CXX_FLAGS:STRING="$opts" \
-                    -DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT="Embedded" \
-                    "${config[@]}" \
-                    -DCMAKE_INSTALL_PREFIX=$(cygpath -m $stage) \
-                    -DCMAKE_INSTALL_LIBDIR="$(cygpath -m "$stage/lib/debug")" \
-                    -DZLIB_INCLUDE_DIR="$(cygpath -m "$stage/packages/include/zlib-ng/")" \
-                    -DZLIB_LIBRARY="$(cygpath -m "$stage/packages/lib/debug/zlibd.lib")"
+                mkdir -p "build_debug_$arch"
+                pushd "build_debug_$arch"
+                    opts="$(replace_switch /Zi /Z7 $LL_BUILD_DEBUG)"
+                    if [[ "$arch" == "avx2" ]]; then
+                        opts="$(replace_switch /arch:SSE4.2 /arch:AVX2 $opts)"
+                    elif [[ "$arch" == "arm64" ]]; then
+                        opts="$(remove_switch /arch:SSE4.2 $opts)"
+                    fi
+                    plainopts="$(remove_switch /GR $(remove_cxxstd $opts))"
 
-                cmake --build . --config Debug --parallel $AUTOBUILD_CPU_COUNT
+                    cmake $(cygpath -m ${top}/${MINIZLIB_SOURCE_DIR}) -G "$AUTOBUILD_WIN_CMAKE_GEN" -A "$platform_target" \
+                        -DCMAKE_CONFIGURATION_TYPES="Debug" \
+                        -DCMAKE_C_FLAGS:STRING="$plainopts" \
+                        -DCMAKE_CXX_FLAGS:STRING="$opts" \
+                        -DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT="Embedded" \
+                        "${config[@]}" \
+                        -DCMAKE_INSTALL_PREFIX=$(cygpath -m $stage) \
+                        -DCMAKE_INSTALL_LIBDIR="$(cygpath -m "$stage/lib/$arch/debug")" \
+                        -DZLIB_INCLUDE_DIR="$(cygpath -m "$stage/packages/include/zlib-ng/")" \
+                        -DZLIB_LIBRARY="$(cygpath -m "$stage/packages/lib/$arch/debug/zlibd.lib")"
 
-                # conditionally run unit tests
-                # if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
-                #     ctest -C Debug
-                # fi
+                    cmake --build . --config Debug --parallel $AUTOBUILD_CPU_COUNT
 
-                cmake --install . --config Debug
-            popd
+                    # conditionally run unit tests
+                    # if [[ "${DISABLE_UNIT_TESTS:-0}" == "0" && "$arch" != "arm64" ]]; then
+                    #     ctest -C Debug
+                    # fi
 
-            mkdir -p "build_release"
-            pushd "build_release"
-                opts="$(replace_switch /Zi /Z7 $LL_BUILD_RELEASE)"
-                plainopts="$(remove_switch /GR $(remove_cxxstd $opts))"
+                    cmake --install . --config Debug
+                popd
 
-                cmake $(cygpath -m ${top}/${MINIZLIB_SOURCE_DIR}) -G "$AUTOBUILD_WIN_CMAKE_GEN" -A "$AUTOBUILD_WIN_VSPLATFORM" \
-                    -DCMAKE_CONFIGURATION_TYPES="Release" \
-                    -DCMAKE_C_FLAGS:STRING="$plainopts" \
-                    -DCMAKE_CXX_FLAGS:STRING="$opts" \
-                    -DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT="Embedded" \
-                    "${config[@]}" \
-                    -DCMAKE_INSTALL_PREFIX=$(cygpath -m $stage) \
-                    -DCMAKE_INSTALL_LIBDIR="$(cygpath -m "$stage/lib/release")" \
-                    -DZLIB_INCLUDE_DIR="$(cygpath -m "$stage/packages/include/zlib-ng/")" \
-                    -DZLIB_LIBRARY="$(cygpath -m "$stage/packages/lib/release/zlib.lib")"
+                mkdir -p "build_release_$arch"
+                pushd "build_release_$arch"
+                    opts="$(replace_switch /Zi /Z7 $LL_BUILD_RELEASE)"
+                    if [[ "$arch" == "avx2" ]]; then
+                        opts="$(replace_switch /arch:SSE4.2 /arch:AVX2 $opts)"
+                    elif [[ "$arch" == "arm64" ]]; then
+                        opts="$(remove_switch /arch:SSE4.2 $opts)"
+                    fi
+                    plainopts="$(remove_switch /GR $(remove_cxxstd $opts))"
 
-                cmake --build . --config Release --parallel $AUTOBUILD_CPU_COUNT
+                    cmake $(cygpath -m ${top}/${MINIZLIB_SOURCE_DIR}) -G "$AUTOBUILD_WIN_CMAKE_GEN" -A "$platform_target" \
+                        -DCMAKE_CONFIGURATION_TYPES="Release" \
+                        -DCMAKE_C_FLAGS:STRING="$plainopts" \
+                        -DCMAKE_CXX_FLAGS:STRING="$opts" \
+                        -DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT="Embedded" \
+                        "${config[@]}" \
+                        -DCMAKE_INSTALL_PREFIX=$(cygpath -m $stage) \
+                        -DCMAKE_INSTALL_LIBDIR="$(cygpath -m "$stage/lib/$arch/release")" \
+                        -DZLIB_INCLUDE_DIR="$(cygpath -m "$stage/packages/include/zlib-ng/")" \
+                        -DZLIB_LIBRARY="$(cygpath -m "$stage/packages/lib/$arch/release/zlib.lib")"
 
-                # conditionally run unit tests
-                # if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
-                #     ctest -C Release
-                # fi
+                    cmake --build . --config Release --parallel $AUTOBUILD_CPU_COUNT
 
-                cmake --install . --config Release
-            popd
+                    # conditionally run unit tests
+                    # if [[ "${DISABLE_UNIT_TESTS:-0}" == "0" && "$arch" != "arm64" ]]; then
+                    #     ctest -C Release
+                    # fi
+
+                    cmake --install . --config Release
+                popd
+            done
 
             mkdir -p $stage/include/minizip-ng
             mv $stage/include/minizip/*.h "$stage/include/minizip-ng/"

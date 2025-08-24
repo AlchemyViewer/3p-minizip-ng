@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index c684e3e..3439270 100644
+index 213d03a..1a7c29f 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -5,7 +5,7 @@
@@ -7,7 +7,21 @@ index c684e3e..3439270 100644
  #   schmieder.matthias@gmail.com
  
 -cmake_minimum_required(VERSION 3.13)
-+cmake_minimum_required(VERSION 3.13...3.31)
++cmake_minimum_required(VERSION 3.13...4.0)
  
  # Library version
- set(VERSION "4.0.8")
+ set(VERSION "4.0.10")
+@@ -617,11 +617,11 @@ endif()
+ if(MZ_COMPAT)
+     set(SOVERSION "1")
+ 
+-    list(APPEND MINIZIP_SRC 
++    list(APPEND MINIZIP_SRC
+         compat/ioapi.c
+         compat/unzip.c
+         compat/zip.c)
+-    list(APPEND MINIZIP_HDR 
++    list(APPEND MINIZIP_HDR
+         compat/ioapi.h
+         compat/unzip.h
+         compat/zip.h)
