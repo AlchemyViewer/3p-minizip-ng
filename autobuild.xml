@@ -144,7 +144,8 @@
           </map>
           <key>manifest</key>
           <array>
-            <string>lib/release/libminizip.a</string>
+            <string>lib/sse/release/libminizip.a</string>
+            <string>lib/avx2/release/libminizip.a</string>
           </array>
           <key>name</key>
           <string>linux</string>
