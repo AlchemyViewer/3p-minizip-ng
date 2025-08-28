@@ -179,34 +179,38 @@ pushd "$MINIZLIB_SOURCE_DIR"
 
         # -------------------------- linux, linux64 --------------------------
         linux*)
-            # Prefer out of source builds
-            mkdir -p build
-            pushd "build"
+            for arch in sse avx2 ; do
+                # Default target per autobuild build --address-size
+                opts="${TARGET_OPTS:--m$AUTOBUILD_ADDRSIZE $LL_BUILD_RELEASE}"
+                if [[ "$arch" == "avx2" ]]; then
+                    opts="$(replace_switch -march=x86-64-v2 -march=x86-64-v3 $opts)"
+                fi
 
-            # Default target per autobuild build --address-size
-            opts="${TARGET_OPTS:--m$AUTOBUILD_ADDRSIZE $LL_BUILD_RELEASE}"
+                # Release
+                mkdir -p "build_$arch"
+                pushd "build_$arch"
+                    cmake ${top}/${MINIZLIB_SOURCE_DIR} -G"Ninja" \
+                        -DCMAKE_C_FLAGS:STRING="$(remove_cxxstd $opts)" \
+                        -DCMAKE_CXX_FLAGS:STRING="$opts" \
+                        "${config[@]}" \
+                        -DCMAKE_INSTALL_PREFIX=$stage \
+                        -DCMAKE_INSTALL_LIBDIR="$stage/lib/$arch/release" \
+                        -DZLIB_INCLUDE_DIR="${stage}/packages/include/zlib-ng/" \
+                        -DZLIB_LIBRARY="${stage}/packages/lib/$arch/release/libz.a"
 
-            cmake ${top}/${MINIZLIB_SOURCE_DIR} -G"Ninja" \
-                  -DCMAKE_C_FLAGS:STRING="$(remove_cxxstd $opts)" \
-                  -DCMAKE_CXX_FLAGS:STRING="$opts" \
-                  "${config[@]}" \
-                  -DCMAKE_INSTALL_PREFIX=$stage \
-                  -DCMAKE_INSTALL_LIBDIR="$stage/lib/release" \
-                  -DZLIB_INCLUDE_DIR="${stage}/packages/include/zlib-ng/" \
-                  -DZLIB_LIBRARY="${stage}/packages/lib/release/libz.a"
+                    cmake --build . --config Release --parallel $AUTOBUILD_CPU_COUNT
 
-            cmake --build . --config Release --parallel $AUTOBUILD_CPU_COUNT
+                    # conditionally run unit tests
+                    # if [ "${DISABLE_UNIT_TESTS:-0}" -eq 0 ]; then
+                    #     ctest -C Release
+                    # fi
 
-            # conditionally run unit tests
-            # if [ "${DISABLE_UNIT_TESTS:-0}" -eq 0 ]; then
-            #     ctest -C Release
-            # fi
+                    cmake --install . --config Release
 
-            cmake --install . --config Release
-
-            mkdir -p $stage/include/minizip-ng
-            mv $stage/include/minizip/*.h "$stage/include/minizip-ng/"
-            popd
+                    mkdir -p $stage/include/minizip-ng
+                    mv $stage/include/minizip/*.h "$stage/include/minizip-ng/"
+                popd
+            done
         ;;
     esac
 
